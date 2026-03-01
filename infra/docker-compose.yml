@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fraudeye-postgres
+    environment:
+      POSTGRES_USER: fraudeye
+      POSTGRES_PASSWORD: fraudeye_pass
+      POSTGRES_DB: fraudeye_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - fraudeye_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fraudeye -d fraudeye_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: fraudeye-redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: fraudeye-backend
+    env_file:
+      - ../backend/.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  ml-service:
+    build:
+      context: ../ml-service
+      dockerfile: Dockerfile
+    container_name: fraudeye-ml-service
+    env_file:
+      - ../ml-service/.env
+    ports:
+      - "8000:8000"
+
+  worker:
+    build:
+      context: ../backend/worker
+      dockerfile: Dockerfile
+    container_name: fraudeye-worker
+    env_file:
+      - ../backend/.env
+    command: ["node", "src/index.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      ml-service:
+        condition: service_started
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: fraudeye-frontend
+    command: ["sh", "-c", "echo 'Frontend container placeholder (Phase 0)' && tail -f /dev/null"]
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  fraudeye_pgdata:
