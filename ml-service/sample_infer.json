@@ -1,0 +1,28 @@
+{
+  "transaction": {
+    "transactionId": "txn_1001",
+    "userId": "user_42",
+    "merchantId": "m_19",
+    "amount": 2499.0,
+    "currency": "INR",
+    "timestamp": "2026-03-01T21:05:00+05:30",
+    "channel": "CARD",
+    "deviceId": "dev_abc",
+    "location": { "lat": 20.2961, "lon": 85.8245 },
+    "metadata": { "ip": "103.21.1.10" }
+  },
+  "context": {
+    "txn_count_5m": 3,
+    "txn_count_1h": 9,
+    "merchant_risk_level": 4,
+    "known_device_ids": ["dev_old_1", "dev_old_2"],
+    "user_stats": { "avg_spend_30d": 1200.0, "std_spend_30d": 450.0 },
+    "prev_txn": {
+      "timestamp": "2026-03-01T20:35:00+05:30",
+      "lat": 19.0760,
+      "lon": 72.8777,
+      "deviceId": "dev_old_1",
+      "merchantId": "m_77"
+    }
+  }
+}
