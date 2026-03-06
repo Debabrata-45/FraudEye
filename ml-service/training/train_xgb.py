@@ -132,7 +132,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 def main():
     # Update this path to your dataset file
     data_path = os.getenv("DATASET_PATH", "fraudeye_synthetic_transactions.csv")
-    out_model_path = os.getenv("OUT_MODEL_PATH", os.path.join("models", "xgb_v1.json"))
+    out_model_path = os.getenv("OUT_MODEL_PATH", os.path.join("artifacts", "xgb_model.json"))
 
     df = pd.read_csv(data_path)
 

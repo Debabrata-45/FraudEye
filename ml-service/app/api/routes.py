@@ -1,19 +1,26 @@
+from __future__ import annotations
 import logging
+
 from fastapi import APIRouter, HTTPException
+
 from app.schemas.infer import InferRequest, InferResponse
-from app.services.prediction_service import predict
-from app.services.model_loader import ModelNotLoadedError
+from app.ml.predict import predict
 
-router = APIRouter(tags=["infer"])
+logger = logging.getLogger("routes")
 
-logger = logging.getLogger("infer_router")
+router = APIRouter()
+
+
+@router.get("/health")
+def health():
+    return {"ok": True, "service": "ml-service"}
 
 
 @router.post("/infer", response_model=InferResponse)
 def infer(req: InferRequest):
     try:
         return predict(req)
-    except ModelNotLoadedError as e:
+    except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         logger.exception("Unhandled error in /infer")
