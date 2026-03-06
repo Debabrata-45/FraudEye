@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import xgboost as xgb
 
-from app.schemas.infer import InferRequest, InferResponse
+from app.schemas.infer import InferRequest, InferResponse, SHAPBlock, LIMEBlock
 from app.models.artifacts import artifact_store
 from app.ml.preprocess import compute_features
 from app.ml.explain_shap import compute_shap
@@ -50,22 +50,38 @@ def predict(req: InferRequest) -> InferResponse:
     label = risk_label(score)
 
     # Step 4 — SHAP
-    shap_block = compute_shap(
-        feature_vector=vec,
-        feature_names=feature_names,
-        shap_explainer=artifact_store.shap_explainer,
-    )
+    warning = None
+    try:
+        shap_block = compute_shap(
+            feature_vector=vec,
+            feature_names=feature_names,
+            shap_explainer=artifact_store.shap_explainer,
+        )
+    except Exception as e:
+        logger.error("SHAP failed: %s", e)
+        warning = f"SHAP_FAILED: {type(e).__name__}"
+        shap_block = SHAPBlock(baseValue=0.0, values=[])
 
     # Step 5 — LIME
-    lime_block = compute_lime(
-        feature_vector=vec,
-        feature_names=feature_names,
-        lime_explainer=artifact_store.lime_explainer,
-        predict_fn=_lime_predict_fn,
-    )
+    try:
+        lime_block = compute_lime(
+            feature_vector=vec,
+            feature_names=feature_names,
+            lime_explainer=artifact_store.lime_explainer,
+            predict_fn=_lime_predict_fn,
+        )
+    except Exception as e:
+        logger.error("LIME failed: %s", e)
+        warning = (warning + "; " if warning else "") + f"LIME_FAILED: {type(e).__name__}"
+        lime_block = LIMEBlock(rules=[])
 
     # Step 6 — Unified top factors
-    top_factors = unify_explanations(shap_block, lime_block, top_n=5)
+    try:
+        top_factors = unify_explanations(shap_block, lime_block, top_n=5)
+    except Exception as e:
+        logger.error("Unify failed: %s", e)
+        warning = (warning + "; " if warning else "") + f"UNIFY_FAILED: {type(e).__name__}"
+        top_factors = []
 
     return InferResponse(
         transactionId=req.transaction.transactionId,
@@ -76,4 +92,5 @@ def predict(req: InferRequest) -> InferResponse:
         shap=shap_block,
         lime=lime_block,
         modelVersion="xgb_v1",
+        warning=warning,
     )

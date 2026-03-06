@@ -88,3 +88,4 @@ class InferResponse(BaseModel):
     shap: SHAPBlock
     lime: LIMEBlock
     modelVersion: str
+    warning: Optional[str] = None
