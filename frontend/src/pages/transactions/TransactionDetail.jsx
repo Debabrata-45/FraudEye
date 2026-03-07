@@ -31,8 +31,10 @@ export default function TransactionDetail({ txn, onClose }) {
             </div>
             <div className="text-right">
               <p className="text-gray-400 text-sm mb-1">Probability</p>
-              <p className="text-2xl font-bold text-white">{(txn.fraudProbability * 100).toFixed(1)}%</p>
-              <p className="text-gray-500 text-xs mt-1">Model: {txn.modelVersion}</p>
+              <p className="text-2xl font-bold text-white">
+                {txn.fraudProbability ? (txn.fraudProbability * 100).toFixed(1) : '—'}%
+              </p>
+              <p className="text-gray-500 text-xs mt-1">Model: {txn.modelVersion || '—'}</p>
             </div>
           </div>
 
@@ -68,7 +70,9 @@ export default function TransactionDetail({ txn, onClose }) {
                       <p className={`text-sm font-semibold ${f.direction === 'increases_risk' ? 'text-red-400' : 'text-green-400'}`}>
                         {f.direction === 'increases_risk' ? '↑' : '↓'} {f.impact.toFixed(3)}
                       </p>
-                      <p className="text-gray-500 text-xs">{f.direction === 'increases_risk' ? 'Increases Risk' : 'Decreases Risk'}</p>
+                      <p className="text-gray-500 text-xs">
+                        {f.direction === 'increases_risk' ? 'Increases Risk' : 'Decreases Risk'}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -98,3 +102,31 @@ export default function TransactionDetail({ txn, onClose }) {
           )}
 
           {/* LIME */}
+          {txn.lime?.rules?.length > 0 && (
+            <div>
+              <h3 className="text-white font-semibold mb-3">LIME Explanation</h3>
+              <div className="space-y-2">
+                {txn.lime.rules.map((r, i) => (
+                  <div key={i} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2">
+                    <span className="text-gray-300 text-sm">{r.rule}</span>
+                    <span className={`text-sm font-medium ${r.weight > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      {r.weight > 0 ? '+' : ''}{r.weight.toFixed(4)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Raw JSON (collapsible) */}
+          <div>
+            <h3 className="text-white font-semibold mb-3">Raw Payload</h3>
+            <pre className="bg-gray-800 rounded-lg p-4 text-xs text-gray-400 overflow-x-auto">
+              {JSON.stringify(txn, null, 2)}
+            </pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

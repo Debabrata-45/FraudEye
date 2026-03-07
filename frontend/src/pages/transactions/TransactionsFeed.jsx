@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import TransactionDetail from './TransactionDetail';
 import { useSSE } from '../../hooks/useSSE';
 import RiskBadge from '../../components/ui/RiskBadge';
 
 export default function TransactionsFeed() {
   const { transactions, connected, error, clear } = useSSE(100);
   const [filters, setFilters] = useState({ riskLabel: '', userId: '', merchantId: '' });
+  const [selectedTxn, setSelectedTxn] = useState(null);
 
   const filtered = transactions.filter((t) => {
     if (filters.riskLabel && t.riskLabel !== filters.riskLabel) return false;
@@ -92,6 +94,7 @@ export default function TransactionsFeed() {
               filtered.map((txn, i) => (
                 <tr
                   key={txn.transactionId || i}
+                  onClick={() => setSelectedTxn(txn)}
                   className="border-b border-gray-800/50 hover:bg-gray-800/50 transition-colors cursor-pointer"
                 >
                   <td className="px-4 py-3 text-gray-400">
@@ -121,6 +124,14 @@ export default function TransactionsFeed() {
       <p className="text-gray-600 text-xs mt-3">
         Showing {filtered.length} of {transactions.length} transactions
       </p>
+
+      {/* Transaction Detail Drawer */}
+      {selectedTxn && (
+        <TransactionDetail
+          txn={selectedTxn}
+          onClose={() => setSelectedTxn(null)}
+        />
+      )}
     </div>
   );
 }
