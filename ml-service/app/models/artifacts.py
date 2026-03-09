@@ -9,6 +9,8 @@ logger = logging.getLogger("artifacts")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ARTIFACTS_DIR = os.path.join(BASE_DIR, "artifacts")
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+CURRENT_MODEL_FILE = os.path.join(MODELS_DIR, "current_model.json")
 
 
 class ArtifactStore:
@@ -19,6 +21,7 @@ class ArtifactStore:
         self.lime_background: np.ndarray | None = None
         self.shap_explainer = None
         self.lime_explainer = None
+        self.active_version: str = "xgb_v1"
 
     def load(self) -> None:
         self._load_model()
@@ -26,15 +29,46 @@ class ArtifactStore:
         self._load_backgrounds()
         self._init_explainers()
 
+    def _resolve_model_path(self) -> str:
+        """
+        Read current_model.json to get active model path.
+        Falls back to original artifacts/xgb_model.json if not found.
+        """
+        if os.path.exists(CURRENT_MODEL_FILE):
+            try:
+                with open(CURRENT_MODEL_FILE) as f:
+                    current = json.load(f)
+                version = current.get("activeVersion", "xgb_v1")
+                model_file = current.get("modelFile", "")
+
+                # Resolve relative path from BASE_DIR
+                if not os.path.isabs(model_file):
+                    model_file = os.path.join(BASE_DIR, model_file)
+
+                if os.path.exists(model_file):
+                    self.active_version = version
+                    logger.info("Active model version: %s", version)
+                    return model_file
+                else:
+                    logger.warning("Model file in current_model.json not found: %s", model_file)
+            except Exception as e:
+                logger.error("Failed to read current_model.json: %s", e)
+
+        # Fallback to original model
+        fallback = os.path.join(ARTIFACTS_DIR, "xgb_model.json")
+        self.active_version = "xgb_v1"
+        logger.info("Falling back to default model: %s", fallback)
+        return fallback
+
     def _load_model(self) -> None:
-        path = os.path.join(ARTIFACTS_DIR, "xgb_model.json")
+        path = self._resolve_model_path()
         if not os.path.exists(path):
             logger.error("Model not found at %s", path)
             return
         booster = xgb.Booster()
         booster.load_model(path)
         self.model = booster
-        logger.info("Loaded XGBoost model from %s", path)
+        logger.info("Loaded XGBoost model [%s] from %s", self.active_version, path)
 
     def _load_feature_columns(self) -> None:
         path = os.path.join(ARTIFACTS_DIR, "feature_columns.json")
@@ -65,7 +99,6 @@ class ArtifactStore:
         if self.model is None or self.feature_columns is None:
             logger.warning("Skipping explainer init — model or features not loaded")
             return
-
         self._init_shap()
         self._init_lime()
 
@@ -87,14 +120,10 @@ class ArtifactStore:
     def _init_lime(self) -> None:
         try:
             from lime.lime_tabular import LimeTabularExplainer
-            import numpy as np
-
             if self.lime_background is not None:
                 background = self.lime_background
             else:
-                # fallback: zeros background
                 background = np.zeros((1, len(self.feature_columns)))
-
             self.lime_explainer = LimeTabularExplainer(
                 training_data=background,
                 feature_names=self.feature_columns,
