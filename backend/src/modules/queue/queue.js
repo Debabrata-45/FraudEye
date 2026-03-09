@@ -1,14 +1,13 @@
 const { Queue } = require("bullmq");
 const IORedis = require("ioredis");
-
-const queueName = process.env.BULLMQ_QUEUE || "tx_infer_queue"; // ✅ IMPORTANT
+const { env } = require("../../config/env");
 
 const connection = new IORedis({
-  host: process.env.REDIS_HOST || "redis",
-  port: parseInt(process.env.REDIS_PORT || "6379", 10),
+  host: env.REDIS_HOST || "localhost",
+  port: env.REDIS_PORT || 6379,
   maxRetriesPerRequest: null,
 });
 
-const txQueue = new Queue(queueName, { connection });
+const txQueue = new Queue(env.BULLMQ_QUEUE, { connection });
 
 module.exports = { txQueue, connection };

@@ -10,7 +10,6 @@ export const useSSE = (maxItems = 50) => {
   useEffect(() => {
     const token = localStorage.getItem('fraudeye_token');
     const url = `${API_BASE_URL}/api/stream/transactions${token ? `?token=${token}` : ''}`;
-
     const es = new EventSource(url);
     esRef.current = es;
 
@@ -22,7 +21,14 @@ export const useSSE = (maxItems = 50) => {
     es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+
+        // Only add actual scored transactions to the feed
+        if (data.type !== 'tx_scored') return;
+
         setTransactions((prev) => {
+          // Avoid duplicates
+          const exists = prev.some(t => t.transactionId === data.transactionId);
+          if (exists) return prev;
           const updated = [data, ...prev];
           return updated.slice(0, maxItems);
         });
@@ -43,6 +49,5 @@ export const useSSE = (maxItems = 50) => {
   }, [maxItems]);
 
   const clear = () => setTransactions([]);
-
   return { transactions, connected, error, clear };
 };

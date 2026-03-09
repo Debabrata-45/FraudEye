@@ -1,5 +1,4 @@
-require("dotenv").config();
-
+require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
 const { Worker } = require("bullmq");
 const { env } = require("./config/env");
 const { redis } = require("./queue/redis");
@@ -8,7 +7,7 @@ const { processScanJob } = require("./processor/scanProcessor");
 const worker = new Worker(env.BULLMQ_QUEUE, processScanJob, {
   connection: redis,
   concurrency: 5,
-  lockDuration: 600000, // 10 minutes
+  lockDuration: 600000,
 });
 
 worker.on("ready", () => {

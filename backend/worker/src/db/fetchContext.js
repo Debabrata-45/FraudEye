@@ -8,16 +8,29 @@ async function fetchTransactionContext(transactionId) {
     [transactionId]
   );
   if (txnRes.rowCount === 0) return null;
-
   const txn = txnRes.rows[0];
 
-  // Adjust if your transactions table uses different column names
   const userId = txn.user_id;
   const deviceId = txn.device_id || null;
   const merchantId = txn.merchant_id;
 
-  // 2) user aggregates (recent txn stats)
-  // Your API uses occurredAt, so DB likely has occurred_at; fallback to created_at if exists.
+  // Map DB row to camelCase for ML service
+  const transaction = {
+    transactionId: String(txn.id),
+    userId: String(userId),
+    merchantId: String(merchantId),
+    amount: parseFloat(txn.amount),
+    currency: txn.currency,
+    deviceId: deviceId || 'unknown',
+    ipAddress: txn.ip_address || '',
+    location: {
+    lat: txn.geo_lat || 0,
+    lon: txn.geo_lng || 0,
+  },
+    timestamp: txn.occurred_at,
+  };
+
+  // 2) user aggregates
   const userAggRes = await pool.query(
     `
     SELECT
@@ -31,42 +44,26 @@ async function fetchTransactionContext(transactionId) {
     [userId]
   );
 
-  // 3) device profile (trust score/history) - optional device
+  // 3) device profile
   const deviceRes = deviceId
     ? await pool.query(
-        `
-        SELECT id, trust_score, last_seen_at, risk_flags
-        FROM devices
-        WHERE id = $1
-        `,
+        `SELECT id, trust_score, last_seen_at, risk_flags FROM devices WHERE id = $1`,
         [deviceId]
       )
     : { rows: [] };
 
-  // 4) merchant profile (risk score/category)
+  // 4) merchant profile
   const merchantRes = await pool.query(
-    `
-    SELECT id, risk_score, category, name
-    FROM merchants
-    WHERE id = $1
-    `,
+    `SELECT id, risk_score, category, name FROM merchants WHERE id = $1`,
     [merchantId]
   );
 
-  // 5) recent transactions (last N for the user)
-  // Use columns that likely exist based on your validator: ip_address, geo_lat, geo_lng, occurred_at
+  // 5) recent transactions
   const recentTxRes = await pool.query(
     `
     SELECT
-      id,
-      amount,
-      currency,
-      merchant_id,
-      device_id,
-      ip_address,
-      geo_lat,
-      geo_lng,
-      occurred_at
+      id, amount, currency, merchant_id, device_id,
+      ip_address, geo_lat, geo_lng, occurred_at
     FROM transactions
     WHERE user_id = $1
     ORDER BY occurred_at DESC
@@ -75,8 +72,24 @@ async function fetchTransactionContext(transactionId) {
     [userId, env.RECENT_TXN_LIMIT]
   );
 
+  // Also need context block for ML
+  const context = {
+    previousTransactions: recentTxRes.rows.map(r => ({
+      transactionId: String(r.id),
+      amount: parseFloat(r.amount),
+      merchantId: String(r.merchant_id),
+      deviceId: r.device_id || 'unknown',
+      location: { lat: r.geo_lat || 0, lon: r.geo_lng || 0 },
+      timestamp: r.occurred_at,
+    })),
+    userProfile: userAggRes.rows[0] || null,
+    deviceProfile: deviceRes.rows[0] || null,
+    merchantProfile: merchantRes.rows[0] || null,
+  };
+
   return {
-    transaction: txn,
+    transaction,
+    context,
     userProfile: userAggRes.rows[0] || null,
     deviceProfile: deviceRes.rows[0] || null,
     merchantProfile: merchantRes.rows[0] || null,
