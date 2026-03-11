@@ -1,8 +1,6 @@
 FROM python:3.11-slim
-
 WORKDIR /app
 
-# system deps (xgboost wheels usually ok; keep slim)
 RUN pip install --no-cache-dir --upgrade pip
 
 COPY requirements.txt .
@@ -10,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 COPY models ./models
+COPY artifacts ./artifacts
 
 EXPOSE 8000
-
 CMD ["uvicorn", "app.main:app", "--host=0.0.0.0", "--port=8000"]

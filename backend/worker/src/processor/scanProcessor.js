@@ -2,6 +2,7 @@ require("dotenv").config({ path: require("path").join(__dirname, "../../.env") }
 const { fetchTransactionContext } = require("../db/fetchContext");
 const { callInfer } = require("../ml/client");
 const { upsertPredictionAndExplanation } = require("../db/upsertResults");
+const { pool } = require("../db/pool");
 const IORedis = require("ioredis");
 const { env } = require("../config/env");
 
@@ -14,6 +15,16 @@ const publisher = new IORedis({
 async function processScanJob(job) {
   const { transactionId } = job.data || {};
   if (!transactionId) throw new Error("Missing transactionId in job payload");
+
+  // Idempotency check — skip if already scored
+  const existing = await pool.query(
+    `SELECT id FROM transaction_predictions WHERE transaction_id = $1`,
+    [String(transactionId)]
+  );
+  if (existing.rows.length > 0) {
+    console.log(`⏭️  Skipping job — already scored: ${transactionId}`);
+    return { ok: true, skipped: true, transactionId: String(transactionId) };
+  }
 
   const ctx = await fetchTransactionContext(String(transactionId));
   if (!ctx) throw new Error(`Transaction not found: ${transactionId}`);

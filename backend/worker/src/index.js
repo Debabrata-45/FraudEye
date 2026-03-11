@@ -8,6 +8,13 @@ const worker = new Worker(env.BULLMQ_QUEUE, processScanJob, {
   connection: redis,
   concurrency: 5,
   lockDuration: 600000,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: {
+      type: "exponential",
+      delay: 2000,
+    },
+  },
 });
 
 worker.on("ready", () => {
@@ -19,7 +26,7 @@ worker.on("completed", (job, result) => {
 });
 
 worker.on("failed", (job, err) => {
-  console.error(`❌ failed job ${job?.id}`, err?.message);
+  console.error(`❌ failed job ${job?.id} attempt ${job?.attemptsMade}/${job?.opts?.attempts}`, err?.message);
 });
 
 worker.on("error", (err) => {

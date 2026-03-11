@@ -4,7 +4,12 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/index.js",
+    "test": "jest --runInBand --forceExit"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"]
   },
   "dependencies": {
     "bullmq": "^5.12.0",
@@ -12,5 +17,8 @@
     "ioredis": "^5.4.1",
     "node-fetch": "^3.3.2",
     "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
   }
 }
