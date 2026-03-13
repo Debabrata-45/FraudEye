@@ -1,3 +1,49 @@
+## Features
+
+**Core**
+- Transaction ingestion with real-time risk scoring (0–100) and label (SAFE / MEDIUM / HIGH / FRAUD)
+- XGBoost model with SHAP + LIME explainability per transaction
+- Live dashboard with SSE-powered real-time feed
+- Analyst actions: mark fraud/safe, flag user, flag merchant
+- JWT authentication with role-based access control (Admin / Analyst)
+- Audit logs for all analyst actions
+
+**Advanced**
+- Dynamic merchant risk scoring updated on FRAUD verdicts
+- Feedback loop — analyst labels feed retraining pipeline
+- Device trust scoring and geo-impossibility detection
+- Behavioral feature engineering (velocity, spend patterns, device anomalies)
+- Model versioning, comparison reports, and one-command model switch
+- Queue monitoring dashboard (waiting / active / completed / failed jobs)
+- Model metrics dashboard
+
+---
+
+
+## Architecture
+Browser
+   │  HTTP + SSE
+   ▼
+Frontend (React + Vite)
+   │  REST API
+   ▼
+Backend API (Node.js + Express)
+   ├──► PostgreSQL  (store raw transaction)
+   └──► Redis/BullMQ  (enqueue job)
+              │
+              ▼
+         Worker (Node.js)
+              │  POST /infer
+              ▼
+         ML Service (FastAPI)
+         XGBoost → risk score + label
+         SHAP + LIME → explanation
+              │
+              ▼
+         Worker stores prediction → PostgreSQL
+         Worker publishes update → Redis pub/sub → SSE → Frontend
+```
+
 # FraudEye — AI-Powered Fraud Detection System
 
 An end-to-end fraud detection platform with Explainable AI (XAI), real-time streaming, and human-in-the-loop analyst feedback.
