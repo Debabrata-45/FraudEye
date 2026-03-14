@@ -1,0 +1,65 @@
+{
+  "experiment": "baseline_comparison",
+  "evaluated_at": "2026-03-14T10:58:21.303980",
+  "test_set_size": 15000,
+  "fraud_ratio": 0.035,
+  "models": [
+    {
+      "model": "Logistic Regression",
+      "precision": 0.4944,
+      "recall": 0.9295,
+      "f1": 0.6455,
+      "roc_auc": 0.9851,
+      "pr_auc": 0.9184,
+      "confusion_matrix": {
+        "tn": 13976,
+        "fp": 499,
+        "fn": 37,
+        "tp": 488
+      },
+      "support": {
+        "total": 15000,
+        "fraud": 525,
+        "safe": 14475
+      }
+    },
+    {
+      "model": "Random Forest",
+      "precision": 0.7429,
+      "recall": 0.8914,
+      "f1": 0.8104,
+      "roc_auc": 0.9864,
+      "pr_auc": 0.9261,
+      "confusion_matrix": {
+        "tn": 14313,
+        "fp": 162,
+        "fn": 57,
+        "tp": 468
+      },
+      "support": {
+        "total": 15000,
+        "fraud": 525,
+        "safe": 14475
+      }
+    },
+    {
+      "model": "XGBoost (FraudEye)",
+      "precision": 0.6064,
+      "recall": 0.9333,
+      "f1": 0.7352,
+      "roc_auc": 0.987,
+      "pr_auc": 0.9249,
+      "confusion_matrix": {
+        "tn": 14157,
+        "fp": 318,
+        "fn": 35,
+        "tp": 490
+      },
+      "support": {
+        "total": 15000,
+        "fraud": 525,
+        "safe": 14475
+      }
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "experiment": "xai_evaluation",
+  "evaluated_at": "2026-03-14T10:58:33.243973",
+  "eval_samples": 400,
+  "metrics": {
+    "consistency": 1.0,
+    "stability_spearman_rho": 0.7523,
+    "feature_importance_agreement_spearman": 0.5636,
+    "top3_feature_agreement": 1.0
+  },
+  "global_feature_importance": [
+    {
+      "feature": "spending_deviation_from_user_avg",
+      "shap_mean_abs": 4.26161,
+      "xgb_importance": 0.415002,
+      "shap_rank": 1,
+      "xgb_rank": 2
+    },
+    {
+      "feature": "unusual_hour",
+      "shap_mean_abs": 1.081632,
+      "xgb_importance": 0.419973,
+      "shap_rank": 2,
+      "xgb_rank": 1
+    },
+    {
+      "feature": "merchant_risk_level",
+      "shap_mean_abs": 0.996119,
+      "xgb_importance": 0.127827,
+      "shap_rank": 3,
+      "xgb_rank": 3
+    },
+    {
+      "feature": "amount",
+      "shap_mean_abs": 0.348355,
+      "xgb_importance": 0.037199,
+      "shap_rank": 4,
+      "xgb_rank": 4
+    },
+    {
+      "feature": "geo_anomaly_km",
+      "shap_mean_abs": 0.0,
+      "xgb_importance": 0.0,
+      "shap_rank": 5,
+      "xgb_rank": 5
+    },
+    {
+      "feature": "geo_impossible",
+      "shap_mean_abs": 0.0,
+      "xgb_importance": 0.0,
+      "shap_rank": 6,
+      "xgb_rank": 6
+    },
+    {
+      "feature": "txn_velocity_5m",
+      "shap_mean_abs": 0.0,
+      "xgb_importance": 0.0,
+      "shap_rank": 7,
+      "xgb_rank": 7
+    },
+    {
+      "feature": "txn_velocity_1h",
+      "shap_mean_abs": 0.0,
+      "xgb_importance": 0.0,
+      "shap_rank": 8,
+      "xgb_rank": 8
+    },
+    {
+      "feature": "device_inconsistency",
+      "shap_mean_abs": 0.0,
+      "xgb_importance": 0.0,
+      "shap_rank": 9,
+      "xgb_rank": 9
+    },
+    {
+      "feature": "new_device",
+      "shap_mean_abs": 0.0,
+      "xgb_importance": 0.0,
+      "shap_rank": 10,
+      "xgb_rank": 10
+    }
+  ],
+  "shap_top3_features": [
+    "unusual_hour",
+    "spending_deviation_from_user_avg",
+    "merchant_risk_level"
+  ],
+  "xgb_top3_features": [
+    "unusual_hour",
+    "spending_deviation_from_user_avg",
+    "merchant_risk_level"
+  ]
+}

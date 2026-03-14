@@ -1,0 +1,173 @@
+{
+  "experiment": "ablation_study",
+  "evaluated_at": "2026-03-14T10:58:25.515710",
+  "feature_groups": {
+    "behavioral": [
+      "txn_velocity_5m",
+      "txn_velocity_1h",
+      "spending_deviation_from_user_avg"
+    ],
+    "device": [
+      "new_device",
+      "device_inconsistency"
+    ],
+    "geo": [
+      "geo_anomaly_km",
+      "geo_impossible"
+    ],
+    "merchant": [
+      "merchant_risk_level"
+    ],
+    "temporal": [
+      "unusual_hour"
+    ],
+    "transaction_amount": [
+      "amount"
+    ]
+  },
+  "results": [
+    {
+      "config": "all_features",
+      "features": [
+        "amount",
+        "txn_velocity_5m",
+        "txn_velocity_1h",
+        "unusual_hour",
+        "geo_anomaly_km",
+        "geo_impossible",
+        "new_device",
+        "device_inconsistency",
+        "merchant_risk_level",
+        "spending_deviation_from_user_avg"
+      ],
+      "n_features": 10,
+      "precision": 0.6064,
+      "recall": 0.9333,
+      "f1": 0.7352,
+      "roc_auc": 0.987,
+      "pr_auc": 0.9249,
+      "f1_drop": 0.0,
+      "auc_drop": 0.0
+    },
+    {
+      "config": "no_behavioral",
+      "features": [
+        "amount",
+        "unusual_hour",
+        "geo_anomaly_km",
+        "geo_impossible",
+        "new_device",
+        "device_inconsistency",
+        "merchant_risk_level"
+      ],
+      "n_features": 7,
+      "precision": 0.2305,
+      "recall": 0.8495,
+      "f1": 0.3626,
+      "roc_auc": 0.952,
+      "pr_auc": 0.6136,
+      "f1_drop": 0.3726,
+      "auc_drop": 0.035
+    },
+    {
+      "config": "no_device",
+      "features": [
+        "amount",
+        "txn_velocity_5m",
+        "txn_velocity_1h",
+        "unusual_hour",
+        "geo_anomaly_km",
+        "geo_impossible",
+        "merchant_risk_level",
+        "spending_deviation_from_user_avg"
+      ],
+      "n_features": 8,
+      "precision": 0.622,
+      "recall": 0.9276,
+      "f1": 0.7446,
+      "roc_auc": 0.9869,
+      "pr_auc": 0.9273,
+      "f1_drop": -0.0094,
+      "auc_drop": 0.0001
+    },
+    {
+      "config": "no_geo",
+      "features": [
+        "amount",
+        "txn_velocity_5m",
+        "txn_velocity_1h",
+        "unusual_hour",
+        "new_device",
+        "device_inconsistency",
+        "merchant_risk_level",
+        "spending_deviation_from_user_avg"
+      ],
+      "n_features": 8,
+      "precision": 0.622,
+      "recall": 0.9276,
+      "f1": 0.7446,
+      "roc_auc": 0.9869,
+      "pr_auc": 0.9273,
+      "f1_drop": -0.0094,
+      "auc_drop": 0.0001
+    },
+    {
+      "config": "no_merchant",
+      "features": [
+        "amount",
+        "txn_velocity_5m",
+        "txn_velocity_1h",
+        "unusual_hour",
+        "geo_anomaly_km",
+        "geo_impossible",
+        "new_device",
+        "device_inconsistency",
+        "spending_deviation_from_user_avg"
+      ],
+      "n_features": 9,
+      "precision": 0.568,
+      "recall": 0.9067,
+      "f1": 0.6985,
+      "roc_auc": 0.9782,
+      "pr_auc": 0.9132,
+      "f1_drop": 0.0367,
+      "auc_drop": 0.0088
+    },
+    {
+      "config": "no_temporal",
+      "features": [
+        "amount",
+        "txn_velocity_5m",
+        "txn_velocity_1h",
+        "geo_anomaly_km",
+        "geo_impossible",
+        "new_device",
+        "device_inconsistency",
+        "merchant_risk_level",
+        "spending_deviation_from_user_avg"
+      ],
+      "n_features": 9,
+      "precision": 0.5707,
+      "recall": 0.8686,
+      "f1": 0.6888,
+      "roc_auc": 0.9706,
+      "pr_auc": 0.8795,
+      "f1_drop": 0.0464,
+      "auc_drop": 0.0164
+    },
+    {
+      "config": "transaction_amount_only",
+      "features": [
+        "amount"
+      ],
+      "n_features": 1,
+      "precision": 0.0937,
+      "recall": 0.6248,
+      "f1": 0.163,
+      "roc_auc": 0.7778,
+      "pr_auc": 0.2048,
+      "f1_drop": 0.5722,
+      "auc_drop": 0.2092
+    }
+  ]
+}

@@ -1,0 +1,374 @@
+{
+  "title": "FraudEye: AI-Powered Fraud Detection with Explainable AI",
+  "generated_at": "2026-03-14T10:58:34.031243",
+  "sections": {
+    "dataset": {
+      "total_samples": 100000,
+      "features": [
+        "amount",
+        "txn_velocity_5m",
+        "txn_velocity_1h",
+        "unusual_hour",
+        "geo_anomaly_km",
+        "geo_impossible",
+        "new_device",
+        "device_inconsistency",
+        "merchant_risk_level",
+        "spending_deviation_from_user_avg"
+      ],
+      "n_features": 10,
+      "class_distribution": {
+        "fraud": 3500,
+        "safe": 96500,
+        "fraud_ratio": 0.035,
+        "imbalance_ratio": "1:27"
+      },
+      "splits": {
+        "train": {
+          "rows": 69997,
+          "fraud": 2450
+        },
+        "val": {
+          "rows": 15003,
+          "fraud": 525
+        },
+        "test": {
+          "rows": 15000,
+          "fraud": 525
+        }
+      },
+      "note": "Severe class imbalance: 1:27 safe-to-fraud ratio. Addressed via scale_pos_weight in XGBoost."
+    },
+    "baseline_comparison": {
+      "models_evaluated": [
+        "Logistic Regression",
+        "Random Forest",
+        "XGBoost (FraudEye)"
+      ],
+      "test_set_size": 15000,
+      "results": [
+        {
+          "model": "Logistic Regression",
+          "precision": 0.4944,
+          "recall": 0.9295,
+          "f1": 0.6455,
+          "roc_auc": 0.9851,
+          "pr_auc": 0.9184,
+          "confusion_matrix": {
+            "tn": 13976,
+            "fp": 499,
+            "fn": 37,
+            "tp": 488
+          },
+          "support": {
+            "total": 15000,
+            "fraud": 525,
+            "safe": 14475
+          }
+        },
+        {
+          "model": "Random Forest",
+          "precision": 0.7429,
+          "recall": 0.8914,
+          "f1": 0.8104,
+          "roc_auc": 0.9864,
+          "pr_auc": 0.9261,
+          "confusion_matrix": {
+            "tn": 14313,
+            "fp": 162,
+            "fn": 57,
+            "tp": 468
+          },
+          "support": {
+            "total": 15000,
+            "fraud": 525,
+            "safe": 14475
+          }
+        },
+        {
+          "model": "XGBoost (FraudEye)",
+          "precision": 0.6064,
+          "recall": 0.9333,
+          "f1": 0.7352,
+          "roc_auc": 0.987,
+          "pr_auc": 0.9249,
+          "confusion_matrix": {
+            "tn": 14157,
+            "fp": 318,
+            "fn": 35,
+            "tp": 490
+          },
+          "support": {
+            "total": 15000,
+            "fraud": 525,
+            "safe": 14475
+          }
+        }
+      ],
+      "best_model": "Random Forest",
+      "xgboost_vs_lr": {
+        "f1_improvement": 0.0897,
+        "auc_improvement": 0.0019
+      },
+      "xgboost_vs_rf": {
+        "f1_improvement": -0.0752,
+        "auc_improvement": 0.0006
+      }
+    },
+    "ablation_study": {
+      "configs_tested": 7,
+      "baseline_f1": 0.7352,
+      "baseline_auc": 0.987,
+      "results": [
+        {
+          "config": "all_features",
+          "features": [
+            "amount",
+            "txn_velocity_5m",
+            "txn_velocity_1h",
+            "unusual_hour",
+            "geo_anomaly_km",
+            "geo_impossible",
+            "new_device",
+            "device_inconsistency",
+            "merchant_risk_level",
+            "spending_deviation_from_user_avg"
+          ],
+          "n_features": 10,
+          "precision": 0.6064,
+          "recall": 0.9333,
+          "f1": 0.7352,
+          "roc_auc": 0.987,
+          "pr_auc": 0.9249,
+          "f1_drop": 0.0,
+          "auc_drop": 0.0
+        },
+        {
+          "config": "no_behavioral",
+          "features": [
+            "amount",
+            "unusual_hour",
+            "geo_anomaly_km",
+            "geo_impossible",
+            "new_device",
+            "device_inconsistency",
+            "merchant_risk_level"
+          ],
+          "n_features": 7,
+          "precision": 0.2305,
+          "recall": 0.8495,
+          "f1": 0.3626,
+          "roc_auc": 0.952,
+          "pr_auc": 0.6136,
+          "f1_drop": 0.3726,
+          "auc_drop": 0.035
+        },
+        {
+          "config": "no_device",
+          "features": [
+            "amount",
+            "txn_velocity_5m",
+            "txn_velocity_1h",
+            "unusual_hour",
+            "geo_anomaly_km",
+            "geo_impossible",
+            "merchant_risk_level",
+            "spending_deviation_from_user_avg"
+          ],
+          "n_features": 8,
+          "precision": 0.622,
+          "recall": 0.9276,
+          "f1": 0.7446,
+          "roc_auc": 0.9869,
+          "pr_auc": 0.9273,
+          "f1_drop": -0.0094,
+          "auc_drop": 0.0001
+        },
+        {
+          "config": "no_geo",
+          "features": [
+            "amount",
+            "txn_velocity_5m",
+            "txn_velocity_1h",
+            "unusual_hour",
+            "new_device",
+            "device_inconsistency",
+            "merchant_risk_level",
+            "spending_deviation_from_user_avg"
+          ],
+          "n_features": 8,
+          "precision": 0.622,
+          "recall": 0.9276,
+          "f1": 0.7446,
+          "roc_auc": 0.9869,
+          "pr_auc": 0.9273,
+          "f1_drop": -0.0094,
+          "auc_drop": 0.0001
+        },
+        {
+          "config": "no_merchant",
+          "features": [
+            "amount",
+            "txn_velocity_5m",
+            "txn_velocity_1h",
+            "unusual_hour",
+            "geo_anomaly_km",
+            "geo_impossible",
+            "new_device",
+            "device_inconsistency",
+            "spending_deviation_from_user_avg"
+          ],
+          "n_features": 9,
+          "precision": 0.568,
+          "recall": 0.9067,
+          "f1": 0.6985,
+          "roc_auc": 0.9782,
+          "pr_auc": 0.9132,
+          "f1_drop": 0.0367,
+          "auc_drop": 0.0088
+        },
+        {
+          "config": "no_temporal",
+          "features": [
+            "amount",
+            "txn_velocity_5m",
+            "txn_velocity_1h",
+            "geo_anomaly_km",
+            "geo_impossible",
+            "new_device",
+            "device_inconsistency",
+            "merchant_risk_level",
+            "spending_deviation_from_user_avg"
+          ],
+          "n_features": 9,
+          "precision": 0.5707,
+          "recall": 0.8686,
+          "f1": 0.6888,
+          "roc_auc": 0.9706,
+          "pr_auc": 0.8795,
+          "f1_drop": 0.0464,
+          "auc_drop": 0.0164
+        },
+        {
+          "config": "transaction_amount_only",
+          "features": [
+            "amount"
+          ],
+          "n_features": 1,
+          "precision": 0.0937,
+          "recall": 0.6248,
+          "f1": 0.163,
+          "roc_auc": 0.7778,
+          "pr_auc": 0.2048,
+          "f1_drop": 0.5722,
+          "auc_drop": 0.2092
+        }
+      ],
+      "most_impactful_removal": {
+        "config": "transaction_amount_only",
+        "f1_drop": 0.5722,
+        "auc_drop": 0.2092
+      },
+      "conclusion": "Removing 'transaction_amount_only' features causes the largest performance drop (F1: -0.5722), proving their importance."
+    },
+    "xai_evaluation": {
+      "eval_samples": 400,
+      "metrics": {
+        "consistency": 1.0,
+        "stability_spearman_rho": 0.7523,
+        "feature_importance_agreement_spearman": 0.5636,
+        "top3_feature_agreement": 1.0
+      },
+      "global_feature_importance": [
+        {
+          "feature": "spending_deviation_from_user_avg",
+          "shap_mean_abs": 4.26161,
+          "xgb_importance": 0.415002,
+          "shap_rank": 1,
+          "xgb_rank": 2
+        },
+        {
+          "feature": "unusual_hour",
+          "shap_mean_abs": 1.081632,
+          "xgb_importance": 0.419973,
+          "shap_rank": 2,
+          "xgb_rank": 1
+        },
+        {
+          "feature": "merchant_risk_level",
+          "shap_mean_abs": 0.996119,
+          "xgb_importance": 0.127827,
+          "shap_rank": 3,
+          "xgb_rank": 3
+        },
+        {
+          "feature": "amount",
+          "shap_mean_abs": 0.348355,
+          "xgb_importance": 0.037199,
+          "shap_rank": 4,
+          "xgb_rank": 4
+        },
+        {
+          "feature": "geo_anomaly_km",
+          "shap_mean_abs": 0.0,
+          "xgb_importance": 0.0,
+          "shap_rank": 5,
+          "xgb_rank": 5
+        },
+        {
+          "feature": "geo_impossible",
+          "shap_mean_abs": 0.0,
+          "xgb_importance": 0.0,
+          "shap_rank": 6,
+          "xgb_rank": 6
+        },
+        {
+          "feature": "txn_velocity_5m",
+          "shap_mean_abs": 0.0,
+          "xgb_importance": 0.0,
+          "shap_rank": 7,
+          "xgb_rank": 7
+        },
+        {
+          "feature": "txn_velocity_1h",
+          "shap_mean_abs": 0.0,
+          "xgb_importance": 0.0,
+          "shap_rank": 8,
+          "xgb_rank": 8
+        },
+        {
+          "feature": "device_inconsistency",
+          "shap_mean_abs": 0.0,
+          "xgb_importance": 0.0,
+          "shap_rank": 9,
+          "xgb_rank": 9
+        },
+        {
+          "feature": "new_device",
+          "shap_mean_abs": 0.0,
+          "xgb_importance": 0.0,
+          "shap_rank": 10,
+          "xgb_rank": 10
+        }
+      ],
+      "top_features": {
+        "shap": [
+          "unusual_hour",
+          "spending_deviation_from_user_avg",
+          "merchant_risk_level"
+        ],
+        "xgb": [
+          "unusual_hour",
+          "spending_deviation_from_user_avg",
+          "merchant_risk_level"
+        ]
+      },
+      "conclusions": [
+        "SHAP explanations are perfectly consistent (score: 1.0)",
+        "SHAP explanations are highly stable under input perturbation (\u03c1=0.7523)",
+        "SHAP and XGBoost feature rankings agree strongly (\u03c1=0.5636)",
+        "Top-3 feature agreement between SHAP and XGBoost: 100%"
+      ]
+    }
+  }
+}
