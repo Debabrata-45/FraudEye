@@ -4,6 +4,10 @@ import Layout from "./components/layout/Layout";
 import Login from "./pages/auth/Login";
 import Transactions from "./pages/Transactions";
 import Alerts from "./pages/Alerts";
+import Explanations from "./pages/Explanations";
+import AnalystReview from "./pages/AnalystReview";
+import AuditLogs from "./pages/AuditLogs";
+import Settings from "./pages/Settings";
 
 import Overview from "./pages/Overview";
 import LiveMonitoring from "./pages/LiveMonitoring";
@@ -45,18 +49,22 @@ export default function App() {
                       path="/explanations"
                       element={<PageShell title="Explanations" />}
                     />
+                    <Route path="/explanations" element={<Explanations />} />
                     <Route
                       path="/analyst-review"
                       element={<PageShell title="Analyst Review" />}
                     />
+                    <Route path="/analyst-review" element={<AnalystReview />} />
                     <Route
                       path="/audit-logs"
                       element={<PageShell title="Audit Logs" />}
                     />
+                    <Route path="/audit-logs" element={<AuditLogs />} />
                     <Route
                       path="/settings"
                       element={<PageShell title="Settings" />}
                     />
+                    <Route path="/settings" element={<Settings />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Layout>
