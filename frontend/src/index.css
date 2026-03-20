@@ -2,7 +2,7 @@
    FraudEye — Global Styles
    IMPORTANT: @import MUST be first — before ALL @tailwind directives
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -12,7 +12,9 @@
    Base Reset & Root
    ============================================================ */
 @layer base {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     box-sizing: border-box;
   }
 
@@ -36,7 +38,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #0F172A;
+    background: #0f172a;
   }
 
   ::-webkit-scrollbar-thumb {
@@ -45,25 +47,25 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #22D3EE44;
+    background: #22d3ee44;
   }
 
   /* Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #334155 #0F172A;
+    scrollbar-color: #334155 #0f172a;
   }
 
   /* Focus ring */
   *:focus-visible {
-    outline: 2px solid #22D3EE;
+    outline: 2px solid #22d3ee;
     outline-offset: 2px;
   }
 
   /* Selection */
   ::selection {
-    background: #22D3EE33;
-    color: #F8FAFC;
+    background: #22d3ee33;
+    color: #f8fafc;
   }
 }
 
@@ -71,7 +73,6 @@
    FraudEye Component Classes
    ============================================================ */
 @layer components {
-
   /* --- Glassmorphism Cards --- */
   .fe-glass {
     @apply bg-[#111827]/80 border border-[#334155] rounded-xl backdrop-blur-sm;
@@ -83,45 +84,54 @@
 
   /* --- Glow Borders --- */
   .fe-glow-cyan {
-    box-shadow: 0 0 0 1px #22D3EE44, 0 0 16px #22D3EE18;
-    border-color: #22D3EE55 !important;
+    box-shadow:
+      0 0 0 1px #22d3ee44,
+      0 0 16px #22d3ee18;
+    border-color: #22d3ee55 !important;
   }
 
   .fe-glow-violet {
-    box-shadow: 0 0 0 1px #8B5CF644, 0 0 16px #8B5CF618;
-    border-color: #8B5CF655 !important;
+    box-shadow:
+      0 0 0 1px #8b5cf644,
+      0 0 16px #8b5cf618;
+    border-color: #8b5cf655 !important;
   }
 
   .fe-glow-danger {
-    box-shadow: 0 0 0 1px #F43F5E44, 0 0 16px #F43F5E18;
-    border-color: #F43F5E55 !important;
+    box-shadow:
+      0 0 0 1px #f43f5e44,
+      0 0 16px #f43f5e18;
+    border-color: #f43f5e55 !important;
   }
 
   .fe-glow-success {
-    box-shadow: 0 0 0 1px #22C55E44, 0 0 16px #22C55E18;
-    border-color: #22C55E55 !important;
+    box-shadow:
+      0 0 0 1px #22c55e44,
+      0 0 16px #22c55e18;
+    border-color: #22c55e55 !important;
   }
 
   .fe-glow-warning {
-    box-shadow: 0 0 0 1px #F59E0B44, 0 0 16px #F59E0B18;
-    border-color: #F59E0B55 !important;
+    box-shadow:
+      0 0 0 1px #f59e0b44,
+      0 0 16px #f59e0b18;
+    border-color: #f59e0b55 !important;
   }
 
   /* --- Shimmer Skeleton --- */
   .fe-shimmer {
-    background: linear-gradient(
-      90deg,
-      #1E293B 25%,
-      #334155 50%,
-      #1E293B 75%
-    );
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
     background-size: 200% 100%;
     animation: fe-shimmer-anim 1.5s infinite;
   }
 
   @keyframes fe-shimmer-anim {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 
   /* --- Live Dot Indicator --- */
@@ -131,8 +141,17 @@
   }
 
   @keyframes fe-live-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 #22C55E66; }
-    50%       { opacity: 0.7; transform: scale(1.15); box-shadow: 0 0 0 6px transparent; }
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+      box-shadow: 0 0 0 0 #22c55e66;
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.15);
+      box-shadow: 0 0 0 6px transparent;
+    }
   }
 
   /* --- Dot Grid Background --- */
@@ -147,13 +166,17 @@
   }
 
   @keyframes fe-row-flash-anim {
-    0%   { background-color: #22D3EE18; }
-    100% { background-color: transparent; }
+    0% {
+      background-color: #22d3ee18;
+    }
+    100% {
+      background-color: transparent;
+    }
   }
 
   /* --- Gradient Text --- */
   .fe-gradient-text {
-    background: linear-gradient(135deg, #22D3EE 0%, #8B5CF6 100%);
+    background: linear-gradient(135deg, #22d3ee 0%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -163,27 +186,27 @@
   .fe-section-heading {
     @apply text-sm font-semibold uppercase tracking-widest text-[#94A3B8];
     padding-left: 12px;
-    border-left: 2px solid #22D3EE;
+    border-left: 2px solid #22d3ee;
   }
 
   /* --- Risk Row Edge Colors --- */
   .fe-row-high {
-    border-left: 3px solid #F43F5E;
+    border-left: 3px solid #f43f5e;
   }
 
   .fe-row-medium {
-    border-left: 3px solid #F59E0B;
+    border-left: 3px solid #f59e0b;
   }
 
   .fe-row-low {
-    border-left: 3px solid #22C55E;
+    border-left: 3px solid #22c55e;
   }
 
   /* --- Active Nav Item --- */
   .fe-nav-active {
     @apply bg-[#22D3EE14] text-[#22D3EE];
-    border-left: 2px solid #22D3EE;
-    box-shadow: inset 0 0 20px #22D3EE08;
+    border-left: 2px solid #22d3ee;
+    box-shadow: inset 0 0 20px #22d3ee08;
   }
 
   /* --- Full Page Background Atmosphere --- */
@@ -192,19 +215,29 @@
     inset: 0;
     z-index: -1;
     background:
-      radial-gradient(ellipse 80% 50% at 20% 10%, #22D3EE0A 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 80%, #8B5CF60A 0%, transparent 60%),
+      radial-gradient(
+        ellipse 80% 50% at 20% 10%,
+        #22d3ee0a 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 60% 40% at 80% 80%,
+        #8b5cf60a 0%,
+        transparent 60%
+      ),
       #020617;
   }
 
   /* --- KPI Card Hover --- */
   .fe-kpi-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .fe-kpi-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px #22D3EE0F;
+    box-shadow: 0 8px 32px #22d3ee0f;
   }
 
   /* --- Button Base --- */
@@ -237,7 +270,7 @@
   }
 
   .fe-table-row:hover {
-    background-color: #22D3EE08;
+    background-color: #22d3ee08;
   }
 
   /* --- Badge Base --- */
@@ -258,7 +291,7 @@
 
   /* --- Code / Mono text --- */
   .fe-mono {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
     @apply text-xs;
   }
 }
@@ -269,8 +302,14 @@
 @layer utilities {
   /* Fade in up — for staggered entry */
   @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .animate-fade-in-up {
@@ -279,8 +318,14 @@
 
   /* Slide in from right — for drawers/panels */
   @keyframes slide-in-right {
-    from { opacity: 0; transform: translateX(24px); }
-    to   { opacity: 1; transform: translateX(0); }
+    from {
+      opacity: 0;
+      transform: translateX(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .animate-slide-in-right {
@@ -289,8 +334,14 @@
 
   /* Slide in from left — for sidebar */
   @keyframes slide-in-left {
-    from { opacity: 0; transform: translateX(-16px); }
-    to   { opacity: 1; transform: translateX(0); }
+    from {
+      opacity: 0;
+      transform: translateX(-16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .animate-slide-in-left {
@@ -299,8 +350,14 @@
 
   /* Scale pop — for modals/alerts */
   @keyframes scale-pop {
-    from { opacity: 0; transform: scale(0.95); }
-    to   { opacity: 1; transform: scale(1); }
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
   .animate-scale-pop {
@@ -308,16 +365,255 @@
   }
 
   /* Stagger delay helpers */
-  .delay-50  { animation-delay: 50ms; }
-  .delay-100 { animation-delay: 100ms; }
-  .delay-150 { animation-delay: 150ms; }
-  .delay-200 { animation-delay: 200ms; }
-  .delay-300 { animation-delay: 300ms; }
-  .delay-400 { animation-delay: 400ms; }
-  .delay-500 { animation-delay: 500ms; }
+  .delay-50 {
+    animation-delay: 50ms;
+  }
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+  .delay-150 {
+    animation-delay: 150ms;
+  }
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+  .delay-400 {
+    animation-delay: 400ms;
+  }
+  .delay-500 {
+    animation-delay: 500ms;
+  }
 
   /* Opacity 0 holding state (use with animation) */
   .opacity-0-init {
     opacity: 0;
+    @import "./components/polish/polish.css";
+    @import "./components/responsive/responsive.css";
+    /*
+ * ─────────────────────────────────────────────────────────────
+ * FRAUDEYE — PHASE 16 CSS ADDITIONS
+ * Append these @layer components blocks to your existing index.css
+ * AFTER the existing @layer components block from Phase 1.
+ * ─────────────────────────────────────────────────────────────
+ */
+
+    @layer components {
+      /* ── Page layout ─────────────────────────────────────────── */
+      .fe-page-wrapper {
+        @apply w-full px-5 md:px-6 lg:px-8 pt-6 pb-12 max-w-[1600px] mx-auto;
+      }
+
+      .fe-section-gap {
+        @apply mb-8;
+      }
+
+      /* ── Section headings ────────────────────────────────────── */
+      .fe-section-heading {
+        @apply text-sm font-semibold text-[#94A3B8] uppercase tracking-widest;
+      }
+
+      /* ── Cards & surfaces ────────────────────────────────────── */
+      .fe-card {
+        @apply bg-[#0D1627] border border-[#1E293B] rounded-xl overflow-hidden;
+      }
+
+      .fe-card-elevated {
+        @apply bg-[#111827] border border-[#1E293B] rounded-xl overflow-hidden
+           shadow-[0_0_0_1px_rgba(34,211,238,0.04),0_8px_32px_rgba(0,0,0,0.3)];
+      }
+
+      /* ── Panel header ────────────────────────────────────────── */
+      .fe-panel-header {
+        @apply flex items-center justify-between px-5 py-3.5
+           border-b border-[#0F172A] bg-[#0A1220];
+      }
+
+      .fe-panel-header-title {
+        @apply text-xs font-semibold text-[#F8FAFC] uppercase tracking-wider;
+      }
+
+      /* ── KPI grid ────────────────────────────────────────────── */
+      .fe-kpi-grid {
+        @apply grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8;
+      }
+
+      /* ── Controls bar ────────────────────────────────────────── */
+      .fe-controls-bar {
+        @apply flex flex-wrap items-center gap-2 p-3
+           rounded-xl bg-[#080F1A] border border-[#0F172A] backdrop-blur-sm;
+      }
+
+      /* ── Table container ─────────────────────────────────────── */
+      .fe-table-container {
+        @apply overflow-x-auto rounded-xl border border-[#1E293B] bg-[#080F1A];
+      }
+
+      /* ── Table column visibility ─────────────────────────────── */
+
+      /* fe-col-secondary: hidden on mobile (xs), visible sm+ */
+      .fe-col-secondary {
+        @apply hidden sm:table-cell;
+      }
+
+      /* fe-col-optional: hidden on mobile + tablet, visible lg+ */
+      .fe-col-optional {
+        @apply hidden lg:table-cell;
+      }
+
+      /* fe-col-xl: hidden below xl, visible xl+ */
+      .fe-col-xl {
+        @apply hidden xl:table-cell;
+      }
+
+      /* ── Drawer / split panel ────────────────────────────────── */
+      .fe-drawer-inline {
+        @apply fixed inset-0 z-40 bg-[#080F1A] border-l border-[#1E293B]
+           overflow-y-auto lg:relative lg:inset-auto lg:z-auto;
+      }
+
+      /* ── Buttons ─────────────────────────────────────────────── */
+      .fe-btn-ghost {
+        @apply flex items-center gap-1.5 px-3 py-2 rounded-lg
+           bg-[#FFFFFF06] border border-[#1E293B] text-xs font-medium
+           text-[#64748B] hover:text-[#CBD5E1] hover:border-[#334155]
+           transition-all duration-150 cursor-pointer;
+      }
+
+      .fe-btn-ghost:disabled {
+        @apply opacity-40 cursor-not-allowed;
+      }
+
+      .fe-btn-primary {
+        @apply flex items-center gap-1.5 px-4 py-2 rounded-lg
+           bg-[#22D3EE14] border border-[#22D3EE33] text-xs font-semibold
+           text-[#22D3EE] hover:bg-[#22D3EE22] hover:border-[#22D3EE55]
+           transition-all duration-150 cursor-pointer;
+      }
+
+      .fe-btn-danger {
+        @apply flex items-center gap-1.5 px-4 py-2 rounded-lg
+           bg-[#F43F5E14] border border-[#F43F5E33] text-xs font-semibold
+           text-[#F43F5E] hover:bg-[#F43F5E22] hover:border-[#F43F5E55]
+           transition-all duration-150 cursor-pointer;
+      }
+
+      /* ── Badges ──────────────────────────────────────────────── */
+      .fe-badge {
+        @apply inline-flex items-center gap-1.5 px-2 py-0.5
+           rounded-md border text-[11px] font-semibold;
+      }
+
+      .fe-badge-critical {
+        @apply fe-badge bg-[#F43F5E10] border-[#F43F5E30] text-[#F43F5E];
+      }
+
+      .fe-badge-high {
+        @apply fe-badge bg-[#F9731610] border-[#F9731630] text-[#F97316];
+      }
+
+      .fe-badge-medium {
+        @apply fe-badge bg-[#F59E0B10] border-[#F59E0B30] text-[#F59E0B];
+      }
+
+      .fe-badge-low {
+        @apply fe-badge bg-[#22D3EE10] border-[#22D3EE25] text-[#22D3EE];
+      }
+
+      .fe-badge-safe {
+        @apply fe-badge bg-[#22C55E10] border-[#22C55E25] text-[#22C55E];
+      }
+
+      .fe-badge-info {
+        @apply fe-badge bg-[#47556918] border-[#33415530] text-[#64748B];
+      }
+
+      .fe-badge-success {
+        @apply fe-badge bg-[#22C55E10] border-[#22C55E25] text-[#22C55E];
+      }
+
+      .fe-badge-warning {
+        @apply fe-badge bg-[#F59E0B10] border-[#F59E0B30] text-[#F59E0B];
+      }
+
+      .fe-badge-error {
+        @apply fe-badge bg-[#F43F5E10] border-[#F43F5E30] text-[#F43F5E];
+      }
+
+      /* Status badges */
+      .fe-badge-approved {
+        @apply fe-badge bg-[#22C55E10] border-[#22C55E25] text-[#22C55E];
+      }
+      .fe-badge-flagged {
+        @apply fe-badge bg-[#F43F5E10] border-[#F43F5E30] text-[#F43F5E];
+      }
+      .fe-badge-blocked {
+        @apply fe-badge bg-[#F43F5E18] border-[#F43F5E40] text-[#F87171];
+      }
+      .fe-badge-reviewing {
+        @apply fe-badge bg-[#F59E0B10] border-[#F59E0B30] text-[#F59E0B];
+      }
+      .fe-badge-pending {
+        @apply fe-badge bg-[#22D3EE10] border-[#22D3EE25] text-[#22D3EE];
+      }
+      .fe-badge-resolved {
+        @apply fe-badge bg-[#22C55E0A] border-[#22C55E20] text-[#4ADE80];
+      }
+      .fe-badge-escalated {
+        @apply fe-badge bg-[#8B5CF610] border-[#8B5CF630] text-[#8B5CF6];
+      }
+      .fe-badge-dismissed {
+        @apply fe-badge bg-[#47556918] border-[#33415530] text-[#64748B];
+      }
+
+      /* ── Critical pulse glow ─────────────────────────────────── */
+      .fe-glow-critical-pulse {
+        animation: fe-critical-pulse 3s ease-in-out infinite;
+      }
+
+      @keyframes fe-critical-pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+        }
+        50% {
+          box-shadow: 0 0 12px 2px rgba(244, 63, 94, 0.12);
+        }
+      }
+
+      /* ── Spotlight glow (mouse-tracking, set via JS) ─────────── */
+      .fe-spotlight {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .fe-spotlight::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          400px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+          rgba(34, 211, 238, 0.06),
+          transparent 60%
+        );
+        opacity: var(--spotlight-opacity, 0);
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+        border-radius: inherit;
+        z-index: 0;
+      }
+
+      /* ── Responsive breakpoints (quick reference in CSS) ─────── */
+      /*
+   * xs  < 640px  — mobile:  sidebar hidden, drawers overlay, 2-col KPI
+   * sm  640px+   — mobile+: sidebar hidden, drawers overlay, 2-col KPI
+   * md  768px+   — tablet:  sidebar icon-only, drawers overlay, 3-col KPI
+   * lg  1024px+  — desktop: sidebar expanded, drawers inline, 3-col KPI
+   * xl  1280px+  — wide:    sidebar expanded, drawers inline, 6-col KPI
+   * 2xl 1536px+  — full:    sidebar expanded, drawers inline, 6-col KPI
+   */
+    }
   }
 }

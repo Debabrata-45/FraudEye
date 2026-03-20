@@ -11,8 +11,8 @@
  *  - Hamburger for mobile
  */
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   Menu,
   Bell,
@@ -21,20 +21,19 @@ import {
   User,
   LogOut,
   Shield,
-} from 'lucide-react';
-import { cn } from '../../utils/cn';
-import { useAuth } from '../../hooks/useAuth';
+} from "lucide-react";
+import { cn } from "../../utils/cn";
+import { useAuth } from "../../hooks/useAuth";
+import { SystemStatusDot, LiveBadge } from "../polish";
 
 /* ── Live clock ──────────────────────────────────────────── */
 function LiveClock() {
-  const [time, setTime] = useState('');
+  const [time, setTime] = useState("");
 
   useEffect(() => {
     const tick = () => {
       const now = new Date();
-      setTime(
-        now.toUTCString().slice(17, 25) + ' UTC',
-      );
+      setTime(now.toUTCString().slice(17, 25) + " UTC");
     };
     tick();
     const id = setInterval(tick, 1000);
@@ -42,22 +41,13 @@ function LiveClock() {
   }, []);
 
   return (
-    <div className="hidden lg:flex items-center gap-1.5 text-[11px] font-mono
+    <div
+      className="hidden lg:flex items-center gap-1.5 text-[11px] font-mono
                     text-[#475569] border border-[#1E293B] rounded-md px-2.5 py-1.5
-                    bg-[#0A1628]">
+                    bg-[#0A1628]"
+    >
       <Clock size={11} className="text-[#334155]" />
       <span className="tabular-nums tracking-wide">{time}</span>
-    </div>
-  );
-}
-
-/* ── System status indicator ─────────────────────────────── */
-function SystemStatus() {
-  return (
-    <div className="hidden md:flex items-center gap-1.5 text-[11px] text-[#22C55E]
-                    border border-[#22C55E18] bg-[#22C55E08] rounded-md px-2.5 py-1.5">
-      <span className="fe-live-dot w-1.5 h-1.5" />
-      <span className="font-medium tracking-wide">Operational</span>
     </div>
   );
 }
@@ -66,33 +56,32 @@ function SystemStatus() {
 function ProfileChip({ user, onLogout }) {
   const [open, setOpen] = useState(false);
 
-  const initials = user?.email
-    ? user.email.slice(0, 2).toUpperCase()
-    : 'FE';
-
-  const role = user?.role === 'admin' ? 'Admin' : 'Analyst';
+  const initials = user?.email ? user.email.slice(0, 2).toUpperCase() : "FE";
+  const role = user?.role === "admin" ? "Admin" : "Analyst";
 
   return (
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          'flex items-center gap-2 px-2 py-1.5 rounded-lg',
-          'border border-[#1E293B] bg-[#0A1628]',
-          'hover:border-[#334155] hover:bg-[#111827]',
-          'transition-all duration-150',
+          "flex items-center gap-2 px-2 py-1.5 rounded-lg",
+          "border border-[#1E293B] bg-[#0A1628]",
+          "hover:border-[#334155] hover:bg-[#111827]",
+          "transition-all duration-150",
         )}
         aria-haspopup="true"
         aria-expanded={open}
       >
         {/* Avatar */}
-        <span className="w-6 h-6 rounded-md bg-[#22D3EE18] border border-[#22D3EE33]
-                          flex items-center justify-center text-[10px] font-bold text-[#22D3EE]">
+        <span
+          className="w-6 h-6 rounded-md bg-[#22D3EE18] border border-[#22D3EE33]
+                          flex items-center justify-center text-[10px] font-bold text-[#22D3EE]"
+        >
           {initials}
         </span>
         <div className="hidden sm:flex flex-col items-start leading-none">
           <span className="text-[11px] font-medium text-[#CBD5E1]">
-            {user?.email?.split('@')[0] ?? 'user'}
+            {user?.email?.split("@")[0] ?? "user"}
           </span>
           <span className="text-[10px] text-[#475569] flex items-center gap-1 mt-0.5">
             <Shield size={8} />
@@ -104,10 +93,7 @@ function ProfileChip({ user, onLogout }) {
       {/* Dropdown */}
       {open && (
         <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setOpen(false)}
-          />
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <motion.div
             initial={{ opacity: 0, y: -6, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -119,7 +105,7 @@ function ProfileChip({ user, onLogout }) {
             {/* User info header */}
             <div className="px-4 py-3 border-b border-[#1E293B]">
               <p className="text-xs font-semibold text-[#F8FAFC]">
-                {user?.email ?? '—'}
+                {user?.email ?? "—"}
               </p>
               <p className="text-[10px] text-[#475569] mt-0.5 flex items-center gap-1">
                 <Shield size={9} />
@@ -141,7 +127,10 @@ function ProfileChip({ user, onLogout }) {
             <button
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#F43F5E]
                          hover:bg-[#F43F5E08] transition-colors border-t border-[#1E293B]"
-              onClick={() => { setOpen(false); onLogout?.(); }}
+              onClick={() => {
+                setOpen(false);
+                onLogout?.();
+              }}
             >
               <LogOut size={14} />
               Sign out
@@ -154,29 +143,35 @@ function ProfileChip({ user, onLogout }) {
 }
 
 /* ── Topbar ───────────────────────────────────────────────── */
-export default function Topbar({ title, sub, onMenuClick, collapsed, isMobile }) {
+export default function Topbar({
+  title,
+  sub,
+  onMenuClick,
+  collapsed,
+  isMobile,
+}) {
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
 
   /* Track scroll for shadow */
   useEffect(() => {
-    const el = document.getElementById('fe-main');
+    const el = document.getElementById("fe-main");
     if (!el) return;
     const handler = () => setScrolled(el.scrollTop > 8);
-    el.addEventListener('scroll', handler, { passive: true });
-    return () => el.removeEventListener('scroll', handler);
+    el.addEventListener("scroll", handler, { passive: true });
+    return () => el.removeEventListener("scroll", handler);
   }, []);
 
   return (
     <header
       className={cn(
-        'sticky top-0 z-20 flex-shrink-0',
-        'flex items-center justify-between gap-4',
-        'px-5 h-14',
-        'bg-[#020617]/80 backdrop-blur-md',
-        'border-b border-[#0F172A]',
-        'transition-shadow duration-200',
-        scrolled && 'shadow-[0_1px_0_0_#22D3EE0A,0_4px_24px_0_#00000040]',
+        "sticky top-0 z-20 flex-shrink-0",
+        "flex items-center justify-between gap-4",
+        "px-5 h-14",
+        "bg-[#020617]/80 backdrop-blur-md",
+        "border-b border-[#0F172A]",
+        "transition-shadow duration-200",
+        scrolled && "shadow-[0_1px_0_0_#22D3EE0A,0_4px_24px_0_#00000040]",
       )}
     >
       {/* ── Left: hamburger + breadcrumb ─────────────────── */}
@@ -220,7 +215,11 @@ export default function Topbar({ title, sub, onMenuClick, collapsed, isMobile })
 
       {/* ── Right: status + clock + bell + profile ─────────── */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        <SystemStatus />
+        {/* System status dots */}
+        <SystemStatusDot status="ok" label="ML Service" />
+        <SystemStatusDot status="ok" label="Database" />
+        <LiveBadge variant="active" />
+
         <LiveClock />
 
         {/* Notification bell */}
@@ -232,8 +231,10 @@ export default function Topbar({ title, sub, onMenuClick, collapsed, isMobile })
         >
           <Bell size={16} strokeWidth={1.5} />
           {/* Unread dot */}
-          <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#F43F5E]
-                            shadow-[0_0_4px_#F43F5E]" />
+          <span
+            className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#F43F5E]
+                            shadow-[0_0_4px_#F43F5E]"
+          />
         </button>
 
         {/* Divider */}

@@ -1,0 +1,447 @@
+/* ============================================================
+   FraudEye — Phase 15 Premium Polish Layer
+   APPEND this entire block to the END of frontend/src/index.css
+   Do NOT replace index.css — just add this at the bottom.
+   ============================================================ */
+
+/* ── 1. AMBIENT BACKGROUND ──────────────────────────────────
+   Layered radial glow composition — cyan top-left (intelligence),
+   violet bottom-right (AI), micro red right-center (fraud signal).
+   ─────────────────────────────────────────────────────────── */
+.fe-bg-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 50% at 12%  6%,  rgba(34, 211, 238, 0.055) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 40% at 88% 88%,  rgba(139, 92, 246, 0.050) 0%, transparent 60%),
+    radial-gradient(ellipse 30% 25% at 90% 45%,  rgba(244, 63,  94, 0.022) 0%, transparent 55%),
+    #020617;
+}
+
+/* ── 2. DOT-GRID TEXTURE ────────────────────────────────────
+   Subtle depth texture — add to main content wrapper.
+   ─────────────────────────────────────────────────────────── */
+.fe-dot-grid::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(51, 65, 85, 0.35) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ── 3. SPOTLIGHT HOVER ─────────────────────────────────────
+   Light-follow hover on high-value cards.
+   JS sets --mouse-x / --mouse-y via useSpotlight hook.
+   Use ONLY on: KPI cards, AI insight cards, major panels.
+   Do NOT use on: tables, forms, nav items, small chips.
+   ─────────────────────────────────────────────────────────── */
+.fe-spotlight {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.fe-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    280px circle at var(--mouse-x, -200px) var(--mouse-y, -200px),
+    rgba(34, 211, 238, 0.048),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.fe-spotlight:hover::before { opacity: 1; }
+
+.fe-spotlight-danger::before {
+  background: radial-gradient(
+    240px circle at var(--mouse-x, -200px) var(--mouse-y, -200px),
+    rgba(244, 63, 94, 0.050),
+    transparent 65%
+  );
+}
+
+.fe-spotlight-ai::before {
+  background: radial-gradient(
+    260px circle at var(--mouse-x, -200px) var(--mouse-y, -200px),
+    rgba(139, 92, 246, 0.050),
+    transparent 65%
+  );
+}
+
+/* ── 4. GLOW-BORDER SYSTEM ──────────────────────────────────
+   Semantic tiers:
+     none    → default cards
+     soft    → focused/selected panels
+     emphasis→ AI insights, important KPIs
+     critical→ confirmed fraud, critical alerts
+   ─────────────────────────────────────────────────────────── */
+.fe-glow-soft-cyan {
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.18), 0 0 14px rgba(34, 211, 238, 0.07) !important;
+  border-color: rgba(34, 211, 238, 0.28) !important;
+}
+
+.fe-glow-soft-violet {
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.18), 0 0 14px rgba(139, 92, 246, 0.07) !important;
+  border-color: rgba(139, 92, 246, 0.28) !important;
+}
+
+.fe-glow-emphasis-cyan {
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.35),
+    0 0 22px rgba(34, 211, 238, 0.12),
+    0 0 44px rgba(34, 211, 238, 0.05) !important;
+  border-color: rgba(34, 211, 238, 0.45) !important;
+}
+
+.fe-glow-emphasis-violet {
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.35),
+    0 0 22px rgba(139, 92, 246, 0.12),
+    0 0 44px rgba(139, 92, 246, 0.05) !important;
+  border-color: rgba(139, 92, 246, 0.45) !important;
+}
+
+.fe-glow-critical {
+  box-shadow:
+    0 0 0 1px rgba(244, 63, 94, 0.40),
+    0 0 20px rgba(244, 63, 94, 0.14),
+    0 0 40px rgba(244, 63, 94, 0.06) !important;
+  border-color: rgba(244, 63, 94, 0.50) !important;
+}
+
+/* Pulsing critical border — confirmed fraud only */
+.fe-glow-critical-pulse {
+  animation: fe-critical-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes fe-critical-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(244, 63, 94, 0.32),
+      0 0 14px rgba(244, 63, 94, 0.09);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(244, 63, 94, 0.58),
+      0 0 28px rgba(244, 63, 94, 0.20);
+  }
+}
+
+/* ── 5. SHINE SWEEP ─────────────────────────────────────────
+   One-shot highlight on primary CTA hover.
+   Add .fe-shine to primary action buttons only.
+   ─────────────────────────────────────────────────────────── */
+.fe-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.fe-shine::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.09) 50%,
+    transparent 80%
+  );
+  transform: skewX(-15deg);
+  pointer-events: none;
+}
+
+.fe-shine:hover::after {
+  animation: fe-shine-sweep 0.48s ease forwards;
+}
+
+@keyframes fe-shine-sweep {
+  0%   { left: -100%; }
+  100% { left: 160%;  }
+}
+
+/* ── 6. SCAN LINE (Live Monitoring only) ────────────────────
+   Extremely subtle — reinforces live surveillance feel.
+   Apply .fe-scan-line only to the ThreatFeed outer container.
+   ─────────────────────────────────────────────────────────── */
+.fe-scan-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.fe-scan-line::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(34, 211, 238, 0.12) 20%,
+    rgba(34, 211, 238, 0.28) 50%,
+    rgba(34, 211, 238, 0.12) 80%,
+    transparent 100%
+  );
+  animation: fe-scan 5s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes fe-scan {
+  0%   { top: -2px;  opacity: 0; }
+  4%   { opacity: 1; }
+  96%  { opacity: 1; }
+  100% { top: 100%;  opacity: 0; }
+}
+
+/* ── 7. GRADIENT TEXT ───────────────────────────────────────
+   Use on main page headings and hero titles.
+   ─────────────────────────────────────────────────────────── */
+.fe-gradient-text {
+  background: linear-gradient(130deg, #22D3EE 0%, #A78BFA 55%, #8B5CF6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.fe-gradient-text-danger {
+  background: linear-gradient(130deg, #FB7185 0%, #F43F5E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── 8. SECTION HEADING (refined) ───────────────────────────
+   Stronger left accent + glow. Replaces the old fe-section-heading.
+   ─────────────────────────────────────────────────────────── */
+.fe-section-heading {
+  position: relative;
+  padding-left: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #94A3B8;
+  line-height: 1;
+}
+
+.fe-section-heading::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 100%;
+  background: #22D3EE;
+  box-shadow: 0 0 7px rgba(34, 211, 238, 0.65);
+  border-radius: 2px;
+}
+
+/* ── 9. PANEL ELITE (top-edge lighting) ─────────────────────
+   Use on: explanation panels, transcript detail, review panels.
+   ─────────────────────────────────────────────────────────── */
+.fe-panel-elite {
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    rgba(17, 24, 39, 0.92) 0%,
+    rgba(8, 15, 26, 0.97) 100%
+  );
+  border: 1px solid #1E293B;
+}
+
+.fe-panel-elite::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(34, 211, 238, 0.22) 40%,
+    rgba(139, 92, 246, 0.18) 60%,
+    transparent
+  );
+  border-radius: 0 0 4px 4px;
+  pointer-events: none;
+}
+
+/* ── 10. NAV ACTIVE REFINEMENT ──────────────────────────────
+   Stronger gradient background on active nav item.
+   ─────────────────────────────────────────────────────────── */
+.fe-nav-active {
+  background: linear-gradient(
+    90deg,
+    rgba(34, 211, 238, 0.10) 0%,
+    rgba(34, 211, 238, 0.03) 100%
+  ) !important;
+  color: #22D3EE !important;
+  border-left: 2px solid #22D3EE !important;
+}
+
+/* ── 11. TABLE ROW HOVER ────────────────────────────────────
+   Left-edge gradient on hover — very subtle.
+   ─────────────────────────────────────────────────────────── */
+.fe-table-row:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(34, 211, 238, 0.04) 0%,
+    transparent 45%
+  ) !important;
+}
+
+/* ── 12. GLASS CARD ─────────────────────────────────────────
+   Refined glass card treatment with backdrop blur.
+   ─────────────────────────────────────────────────────────── */
+.fe-glass {
+  background: rgba(13, 22, 39, 0.85);
+  border: 1px solid rgba(30, 41, 59, 0.90);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ── 13. CHIP ACTIVE REFINEMENT ─────────────────────────────
+   Premium active state for filter chips.
+   ─────────────────────────────────────────────────────────── */
+.fe-chip-active {
+  background: rgba(34, 211, 238, 0.12) !important;
+  border-color: rgba(34, 211, 238, 0.40) !important;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.08);
+}
+
+/* ── 14. STATUS STRIP ───────────────────────────────────────
+   Premium bottom strip for page footers.
+   ─────────────────────────────────────────────────────────── */
+.fe-status-strip {
+  border-top: 1px solid rgba(15, 23, 42, 0.85);
+  background: linear-gradient(
+    90deg,
+    rgba(2, 6, 23, 0.60),
+    rgba(8, 15, 26, 0.45),
+    rgba(2, 6, 23, 0.60)
+  );
+  padding: 8px 0;
+}
+
+/* ── 15. LIVE DOT POLISH (two-ring) ─────────────────────────
+   Enhanced presence — double ring pulse.
+   ─────────────────────────────────────────────────────────── */
+.fe-live-dot-elite {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+}
+
+.fe-live-dot-elite::before,
+.fe-live-dot-elite::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.fe-live-dot-elite::before {
+  inset: 0;
+  background: #22C55E;
+  z-index: 1;
+}
+
+.fe-live-dot-elite::after {
+  inset: -4px;
+  background: rgba(34, 197, 94, 0.25);
+  animation: fe-live-ring 2.2s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes fe-live-ring {
+  0%, 100% { transform: scale(1);    opacity: 0.6; }
+  50%       { transform: scale(1.75); opacity: 0;   }
+}
+
+/* ── 16. LOGO / BRAND HEADER POLISH ────────────────────────
+   Enhanced sidebar logo lockup glow.
+   ─────────────────────────────────────────────────────────── */
+.fe-logo-glow {
+  text-shadow:
+    0 0 20px rgba(34, 211, 238, 0.40),
+    0 0 40px rgba(34, 211, 238, 0.15);
+}
+
+.fe-logo-accent {
+  position: relative;
+}
+
+.fe-logo-accent::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, #22D3EE, #8B5CF6, transparent);
+  border-radius: 1px;
+}
+
+/* ── 17. HERO AMBIENT LINE ──────────────────────────────────
+   Decorative horizontal rule used under page heroes.
+   ─────────────────────────────────────────────────────────── */
+.fe-hero-line {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(34, 211, 238, 0.45) 0%,
+    rgba(139, 92, 246, 0.25) 50%,
+    transparent 100%
+  );
+}
+
+/* ── 18. SCROLLBAR POLISH ───────────────────────────────────
+   Refined dark scrollbar to match surface identity.
+   ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.60);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.85);
+}
+
+/* ── 19. FOCUS RING POLISH ──────────────────────────────────
+   Accessible cyan focus ring — replaces browser default.
+   ─────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(34, 211, 238, 0.55);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── 20. REDUCED MOTION OVERRIDE ────────────────────────────
+   All ambient/decorative animations respect user preference.
+   ─────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .fe-scan-line::after,
+  .fe-glow-critical-pulse,
+  .fe-live-dot-elite::after,
+  .fe-shine::after {
+    animation: none !important;
+  }
+  .fe-spotlight::before,
+  .fe-spotlight-danger::before,
+  .fe-spotlight-ai::before {
+    display: none !important;
+  }
+}

@@ -3,6 +3,7 @@
  * Severity-coded rows, SSE flash on arrival, reason tags, selection highlight
  */
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { ShieldAlert, AlertTriangle, Info } from "lucide-react";
@@ -129,6 +130,7 @@ function FeedRow({ event, isNew, isSelected, onSelect }) {
         s.bgHover,
         s.glow,
         isSelected && "ring-inset ring-1 ring-[#22D3EE22]",
+        isCritical && "fe-glow-critical-pulse",
       )}
     >
       {/* Severity icon */}

@@ -6,8 +6,9 @@
 import { motion } from "framer-motion";
 import { ShieldAlert, Cpu, Database, Zap } from "lucide-react";
 import { LiveDot } from "../../motion";
-import { fadeUp, staggerNormal, DURATION, EASING } from "../../motion";
+import { fadeUp, staggerNormal } from "../../motion";
 import { cn } from "../../utils/cn";
+import { HeroLine } from "../../components/polish";
 
 /* ── System health pill ──────────────────────────────────── */
 function StatusPill({ icon: _Icon, label, status = "ok" }) {
@@ -81,13 +82,7 @@ export default function OverviewHero() {
       </motion.div>
 
       {/* ── Ambient scan line ───────────────────────────── */}
-      <motion.div
-        initial={{ scaleX: 0, opacity: 0 }}
-        animate={{ scaleX: 1, opacity: 1 }}
-        transition={{ duration: 0.8, ease: EASING.out, delay: 0.3 }}
-        style={{ originX: 0 }}
-        className="h-px bg-gradient-to-r from-[#22D3EE44] via-[#8B5CF633] to-transparent mt-4"
-      />
+      <HeroLine color="cyan" delay={0.3} />
     </motion.div>
   );
 }

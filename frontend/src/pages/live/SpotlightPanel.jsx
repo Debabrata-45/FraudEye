@@ -1,7 +1,5 @@
 /**
  * SpotlightPanel.jsx — Selected event focus panel
- * Shows full context for the selected/most critical event
- * Includes: risk summary, transaction details, SHAP drivers, quick actions
  */
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,30 +21,8 @@ import { RiskBar } from "../../components/ui/Badge";
 import { cn } from "../../utils/cn";
 import { REASON_META } from "./liveData";
 import { EASING } from "../../motion";
-
-/* ── Context row ─────────────────────────────────────────── */
-function ContextRow({ icon: _Icon, label, value, mono }) {
-  return (
-    <div className="flex items-center gap-2 py-1.5 border-b border-[#0A1628] last:border-0">
-      <_Icon
-        size={12}
-        strokeWidth={1.5}
-        className="text-[#334155] flex-shrink-0"
-      />
-      <span className="text-[10px] text-[#475569] w-20 flex-shrink-0">
-        {label}
-      </span>
-      <span
-        className={cn(
-          "text-[11px] text-[#94A3B8] truncate flex-1 text-right",
-          mono && "font-mono",
-        )}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
+import { ElitePanel } from "../../components/polish";
+import { MetaRow } from "../../components/Responsive";
 
 /* ── Quick action button ─────────────────────────────────── */
 function ActionBtn({ icon: _Icon, label, variant = "ghost" }) {
@@ -80,8 +56,7 @@ function EmptySpotlight() {
       <motion.div
         animate={{ opacity: [0.4, 1, 0.4] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        className="w-12 h-12 rounded-2xl bg-[#22D3EE08] border border-[#22D3EE18]
-                    flex items-center justify-center"
+        className="w-12 h-12 rounded-2xl bg-[#22D3EE08] border border-[#22D3EE18] flex items-center justify-center"
       >
         <Eye size={20} strokeWidth={1} className="text-[#22D3EE44]" />
       </motion.div>
@@ -108,7 +83,6 @@ export default function SpotlightPanel({ event, onClose }) {
         ? "#F59E0B"
         : "#475569";
 
-  // Fake SHAP features based on event reasons
   const shapFeatures =
     event?.reasons?.map((r, i) => ({
       name: REASON_META[r]?.label ?? r,
@@ -117,12 +91,9 @@ export default function SpotlightPanel({ event, onClose }) {
     })) ?? [];
 
   return (
-    <div className="flex flex-col h-full bg-[#080F1A] border border-[#1E293B] rounded-xl overflow-hidden">
+    <ElitePanel className="flex flex-col h-full">
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-4 py-3
-                      border-b border-[#0F172A] bg-[#0A1220] flex-shrink-0"
-      >
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#0F172A] bg-[#0A1220] flex-shrink-0">
         <div className="flex items-center gap-2">
           <BrainCircuit
             size={13}
@@ -164,7 +135,7 @@ export default function SpotlightPanel({ event, onClose }) {
               transition={{ duration: 0.22, ease: EASING.out }}
               className="p-4 space-y-4"
             >
-              {/* ── Risk summary ───────────────────────── */}
+              {/* Risk summary */}
               <div
                 className="flex items-center gap-4 p-3.5 rounded-xl border"
                 style={{
@@ -211,45 +182,65 @@ export default function SpotlightPanel({ event, onClose }) {
                 </div>
               </div>
 
-              {/* ── Transaction context ─────────────────── */}
+              {/* Transaction context — MetaRow from responsive */}
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-[#334155] mb-2">
                   Transaction Context
                 </p>
                 <div className="bg-[#0A1628] rounded-lg border border-[#0F172A] px-3 py-0.5">
-                  <ContextRow
-                    icon={Store}
-                    label="Merchant"
+                  <MetaRow
+                    label={
+                      <span className="flex items-center gap-1.5">
+                        <Store size={10} className="text-[#334155]" />
+                        Merchant
+                      </span>
+                    }
                     value={event.merchant}
                   />
-                  <ContextRow
-                    icon={CreditCard}
-                    label="Amount"
+                  <MetaRow
+                    label={
+                      <span className="flex items-center gap-1.5">
+                        <CreditCard size={10} className="text-[#334155]" />
+                        Amount
+                      </span>
+                    }
                     value={`$${event.amount.toLocaleString()}`}
                     mono
                   />
-                  <ContextRow
-                    icon={CreditCard}
-                    label="Card"
+                  <MetaRow
+                    label={
+                      <span className="flex items-center gap-1.5">
+                        <CreditCard size={10} className="text-[#334155]" />
+                        Card
+                      </span>
+                    }
                     value={`···· ${event.card}`}
                     mono
                   />
-                  <ContextRow
-                    icon={Smartphone}
-                    label="Device"
+                  <MetaRow
+                    label={
+                      <span className="flex items-center gap-1.5">
+                        <Smartphone size={10} className="text-[#334155]" />
+                        Device
+                      </span>
+                    }
                     value={event.device}
                     mono
                   />
-                  <ContextRow
-                    icon={User}
-                    label="User ID"
+                  <MetaRow
+                    label={
+                      <span className="flex items-center gap-1.5">
+                        <User size={10} className="text-[#334155]" />
+                        User ID
+                      </span>
+                    }
                     value={event.userId}
                     mono
                   />
                 </div>
               </div>
 
-              {/* ── SHAP drivers ────────────────────────── */}
+              {/* SHAP drivers */}
               {shapFeatures.length > 0 && (
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-[#334155] mb-2">
@@ -286,7 +277,7 @@ export default function SpotlightPanel({ event, onClose }) {
                 </div>
               )}
 
-              {/* ── Quick actions ────────────────────────── */}
+              {/* Quick actions */}
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-[#334155] mb-2">
                   Quick Actions
@@ -306,7 +297,7 @@ export default function SpotlightPanel({ event, onClose }) {
                 </div>
                 <button
                   className="w-full mt-2 flex items-center justify-center gap-1.5
-                                    text-[10px] text-[#334155] hover:text-[#64748B] transition-colors py-1.5"
+                  text-[10px] text-[#334155] hover:text-[#64748B] transition-colors py-1.5"
                 >
                   Open full investigation
                   <ChevronRight size={10} />
@@ -316,6 +307,6 @@ export default function SpotlightPanel({ event, onClose }) {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </ElitePanel>
   );
 }

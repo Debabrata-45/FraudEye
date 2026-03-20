@@ -13,6 +13,8 @@ const queueRoutes = require("./modules/queue/queue.routes");
 const analyticsRoutes = require("./modules/analytics/analytics.routes");
 const feedbackRoutes = require("./modules/feedback/feedback.routes");
 const actionsRoutes = require("./modules/actions/actions.routes");
+const alertsRoutes = require("./modules/alerts/alerts.routes");
+const explanationsRoutes = require("./modules/explanations/explanations.routes");
 
 const app = express();
 
@@ -34,7 +36,7 @@ app.use(
       return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json({ limit: "1mb" }));
@@ -47,7 +49,6 @@ app.get("/health", async (req, res) => {
     redis: "unknown",
     timestamp: new Date().toISOString(),
   };
-
   try {
     await pool.query("SELECT 1");
     health.db = "ok";
@@ -55,7 +56,6 @@ app.get("/health", async (req, res) => {
     health.db = "error";
     health.ok = false;
   }
-
   try {
     await txQueue.getJobCounts("waiting");
     health.redis = "ok";
@@ -63,7 +63,6 @@ app.get("/health", async (req, res) => {
     health.redis = "error";
     health.ok = false;
   }
-
   res.status(health.ok ? 200 : 503).json(health);
 });
 
@@ -74,6 +73,8 @@ app.use("/api/queue", queueRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/actions", actionsRoutes);
+app.use("/api/alerts", alertsRoutes);
+app.use("/api/explanations", explanationsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ ok: false, error: { message: "Route not found" } });

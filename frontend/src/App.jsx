@@ -2,16 +2,14 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import Layout from "./components/layout/Layout";
 import Login from "./pages/auth/Login";
+import Overview from "./pages/Overview";
+import LiveMonitoring from "./pages/LiveMonitoring";
 import Transactions from "./pages/Transactions";
 import Alerts from "./pages/Alerts";
 import Explanations from "./pages/Explanations";
 import AnalystReview from "./pages/AnalystReview";
 import AuditLogs from "./pages/AuditLogs";
 import Settings from "./pages/Settings";
-
-import Overview from "./pages/Overview";
-import LiveMonitoring from "./pages/LiveMonitoring";
-import PageShell from "./components/layout/PageShell";
 
 export default function App() {
   const { user } = useAuth();
@@ -36,34 +34,10 @@ export default function App() {
                     <Route path="/" element={<Overview />} />
                     <Route path="/live" element={<LiveMonitoring />} />
                     <Route path="/transactions" element={<Transactions />} />
-                    <Route
-                      path="/transactions"
-                      element={<PageShell title="Transactions" />}
-                    />
-                    <Route
-                      path="/alerts"
-                      element={<PageShell title="Alerts" />}
-                    />
                     <Route path="/alerts" element={<Alerts />} />
-                    <Route
-                      path="/explanations"
-                      element={<PageShell title="Explanations" />}
-                    />
                     <Route path="/explanations" element={<Explanations />} />
-                    <Route
-                      path="/analyst-review"
-                      element={<PageShell title="Analyst Review" />}
-                    />
                     <Route path="/analyst-review" element={<AnalystReview />} />
-                    <Route
-                      path="/audit-logs"
-                      element={<PageShell title="Audit Logs" />}
-                    />
                     <Route path="/audit-logs" element={<AuditLogs />} />
-                    <Route
-                      path="/settings"
-                      element={<PageShell title="Settings" />}
-                    />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>

@@ -1,26 +1,17 @@
 /**
- * LiveMonitoring.jsx — FraudEye Live Monitoring Page
- *
- * The real-time operational heart of FraudEye.
- * Layout:
- *   [Header + live metrics strip]
- *   [Threat Feed (left, main) | Spotlight Panel (right)]
- *   [Activity Timeline (full width bottom)]
- *
- * SSE: replace useLiveStream() mock with real EventSource
+ * LiveMonitoring.jsx — Real SSE-powered live monitoring
  */
-
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageWrapper } from "../components/layout/PageShell";
 import { ErrorState } from "../components/ui/States";
 import { fadeUp, staggerNormal } from "../motion";
+import { useSSE } from "../hooks/useSSE";
 
 import LiveHeader from "./live/LiveHeader";
 import ThreatFeed from "./live/ThreatFeed";
 import SpotlightPanel from "./live/SpotlightPanel";
 import ActivityTimeline from "./live/ActivityTimeline";
-import { useLiveStream } from "./live/liveData";
 
 /* ── Loading skeleton ────────────────────────────────────── */
 function LiveSkeleton() {
@@ -63,9 +54,8 @@ function DisconnectBanner() {
 
 /* ── Main page ───────────────────────────────────────────── */
 export default function LiveMonitoring() {
-  const { events, newIds, connected, paused, togglePause, stats } =
-    useLiveStream();
-  const [selectedEvent, setSelectedEvent] = useState(events[0] ?? null);
+  const { events, newIds, connected, paused, togglePause, stats } = useSSE(100);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [error] = useState(null);
 
   const handleSelect = (event) => {
@@ -89,7 +79,7 @@ export default function LiveMonitoring() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
         >
-          {/* ── Header ───────────────────────────────── */}
+          {/* Header */}
           <LiveHeader
             connected={connected}
             paused={paused}
@@ -97,10 +87,10 @@ export default function LiveMonitoring() {
             stats={stats}
           />
 
-          {/* ── Disconnect banner ─────────────────────── */}
+          {/* Disconnect banner */}
           {!connected && <DisconnectBanner />}
 
-          {/* ── Main layout: feed + spotlight ─────────── */}
+          {/* Main layout */}
           <motion.div
             variants={staggerNormal}
             initial="hidden"
@@ -108,7 +98,6 @@ export default function LiveMonitoring() {
             className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4"
             style={{ minHeight: 520 }}
           >
-            {/* Threat feed — takes 2/3 on large */}
             <motion.div
               variants={fadeUp}
               className="lg:col-span-2 min-h-0"
@@ -122,7 +111,6 @@ export default function LiveMonitoring() {
               />
             </motion.div>
 
-            {/* Spotlight panel — takes 1/3 */}
             <motion.div variants={fadeUp} style={{ height: 560 }}>
               <SpotlightPanel
                 event={selectedEvent}
@@ -131,7 +119,7 @@ export default function LiveMonitoring() {
             </motion.div>
           </motion.div>
 
-          {/* ── Activity Timeline ─────────────────────── */}
+          {/* Activity Timeline */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
@@ -141,7 +129,7 @@ export default function LiveMonitoring() {
             <ActivityTimeline />
           </motion.div>
 
-          {/* ── Footer ───────────────────────────────── */}
+          {/* Footer */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

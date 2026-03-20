@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RotateCcw, Save } from "lucide-react";
+import { SaveBar } from "../components/feedback";
 
 import { PageWrapper } from "../components/layout/PageShell";
+import { SectionBlock, PanelCard } from "../components/Responsive";
 import SettingsHeader from "./settings/SettingsHeader";
 import { ProfileSection, AccessSection } from "./settings/ProfileSection";
 import {
@@ -28,9 +30,8 @@ const FADE_UP = {
 const Settings = () => {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState({ ...DEFAULT_SETTINGS });
-  const [saveState, setSaveState] = useState("idle"); // idle | dirty | saving | saved | error
+  const [saveState, setSaveState] = useState("idle");
 
-  // Detect unsaved changes
   useEffect(() => {
     const isDirty = JSON.stringify(settings) !== JSON.stringify(saved);
     if (isDirty && saveState === "idle") setSaveState("dirty");
@@ -44,7 +45,7 @@ const Settings = () => {
   const handleSave = useCallback(() => {
     setSaveState("saving");
     setTimeout(() => {
-      const success = Math.random() > 0.1; // 90% success for demo
+      const success = Math.random() > 0.1;
       if (success) {
         setSaved({ ...settings });
         setSaveState("saved");
@@ -61,19 +62,21 @@ const Settings = () => {
     setSaved({ ...DEFAULT_SETTINGS });
     setSaveState("idle");
   }, []);
+  const handleDiscard = useCallback(() => {
+    setSettings({ ...saved });
+    setSaveState("idle");
+  }, [saved]);
 
   const isDirty = JSON.stringify(settings) !== JSON.stringify(saved);
 
   return (
     <PageWrapper>
       <div className="flex flex-col h-full min-h-0">
-        {/* Header */}
         <SettingsHeader saveState={saveState} user={MOCK_USER} />
 
-        {/* Two-column layout */}
         <div className="flex-1 overflow-y-auto">
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4 pb-6">
-            {/* Left column — preferences */}
+            {/* Left — preferences */}
             <motion.div
               className="space-y-4"
               variants={STAGGER}
@@ -81,32 +84,59 @@ const Settings = () => {
               animate="show"
             >
               <motion.div variants={FADE_UP}>
-                <DisplaySection settings={settings} onChange={handleChange} />
+                <PanelCard>
+                  <SectionBlock heading="Display & Interface">
+                    <DisplaySection
+                      settings={settings}
+                      onChange={handleChange}
+                    />
+                  </SectionBlock>
+                </PanelCard>
               </motion.div>
+
               <motion.div variants={FADE_UP}>
-                <AlertSection settings={settings} onChange={handleChange} />
+                <PanelCard>
+                  <SectionBlock heading="Alert Preferences">
+                    <AlertSection settings={settings} onChange={handleChange} />
+                  </SectionBlock>
+                </PanelCard>
               </motion.div>
+
               <motion.div variants={FADE_UP}>
-                <MonitoringSection
-                  settings={settings}
-                  onChange={handleChange}
-                />
+                <PanelCard>
+                  <SectionBlock heading="Monitoring">
+                    <MonitoringSection
+                      settings={settings}
+                      onChange={handleChange}
+                    />
+                  </SectionBlock>
+                </PanelCard>
               </motion.div>
+
               <motion.div variants={FADE_UP}>
-                <RiskDisplaySection
-                  settings={settings}
-                  onChange={handleChange}
-                />
+                <PanelCard>
+                  <SectionBlock heading="Risk Display">
+                    <RiskDisplaySection
+                      settings={settings}
+                      onChange={handleChange}
+                    />
+                  </SectionBlock>
+                </PanelCard>
               </motion.div>
+
               <motion.div variants={FADE_UP}>
-                <NotificationSection
-                  settings={settings}
-                  onChange={handleChange}
-                />
+                <PanelCard>
+                  <SectionBlock heading="Notifications">
+                    <NotificationSection
+                      settings={settings}
+                      onChange={handleChange}
+                    />
+                  </SectionBlock>
+                </PanelCard>
               </motion.div>
             </motion.div>
 
-            {/* Right column — profile, access, system */}
+            {/* Right — profile, access, system */}
             <motion.div
               className="space-y-4"
               variants={STAGGER}
@@ -114,18 +144,26 @@ const Settings = () => {
               animate="show"
             >
               <motion.div variants={FADE_UP}>
-                <ProfileSection user={MOCK_USER} />
+                <PanelCard variant="elevated">
+                  <ProfileSection user={MOCK_USER} />
+                </PanelCard>
               </motion.div>
+
               <motion.div variants={FADE_UP}>
-                <AccessSection user={MOCK_USER} />
+                <PanelCard variant="elevated">
+                  <AccessSection user={MOCK_USER} />
+                </PanelCard>
               </motion.div>
+
               <motion.div variants={FADE_UP}>
-                <SystemSection info={SYSTEM_INFO} />
+                <PanelCard variant="elevated">
+                  <SystemSection info={SYSTEM_INFO} />
+                </PanelCard>
               </motion.div>
             </motion.div>
           </div>
 
-          {/* Sticky save bar */}
+          {/* Inline sticky save bar (fallback if SaveBar not wired) */}
           {isDirty && (
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -133,7 +171,7 @@ const Settings = () => {
               exit={{ opacity: 0, y: 16 }}
               className="sticky bottom-4 flex items-center justify-between gap-3 px-5 py-3.5
                 rounded-2xl bg-slate-900/95 border border-slate-700/60 backdrop-blur-md
-                shadow-2xl shadow-black/40 mx-0"
+                shadow-2xl shadow-black/40"
             >
               <p className="text-xs text-slate-400">
                 You have{" "}
@@ -144,8 +182,8 @@ const Settings = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleReset}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-700 text-xs
-                    text-slate-400 hover:text-slate-200 hover:border-slate-600 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-700
+                    text-xs text-slate-400 hover:text-slate-200 hover:border-slate-600 transition-all"
                 >
                   <RotateCcw size={11} />
                   Reset
@@ -153,8 +191,9 @@ const Settings = () => {
                 <button
                   onClick={handleSave}
                   disabled={saveState === "saving"}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-500/15 border border-cyan-500/40
-                    text-cyan-300 text-xs font-semibold hover:bg-cyan-500/25 hover:border-cyan-500/60
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-500/15
+                    border border-cyan-500/40 text-cyan-300 text-xs font-semibold
+                    hover:bg-cyan-500/25 hover:border-cyan-500/60
                     disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   <Save size={11} />
@@ -164,6 +203,14 @@ const Settings = () => {
             </motion.div>
           )}
         </div>
+
+        {/* SaveBar from feedback layer */}
+        <SaveBar
+          isDirty={isDirty}
+          saveStatus={saveState}
+          onSave={handleSave}
+          onDiscard={handleDiscard}
+        />
       </div>
     </PageWrapper>
   );

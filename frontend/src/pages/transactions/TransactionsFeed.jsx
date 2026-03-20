@@ -34,19 +34,27 @@ function TxnRow({ txn, onClick, isNew }) {
         config.rowEdge,
       )}
     >
-      <td className="px-4 py-3 text-fe-text-3 text-xs font-mono whitespace-nowrap">
-        {txn.timestamp ? new Date(txn.timestamp).toLocaleTimeString() : "—"}
-      </td>
+      {/* Always visible */}
       <td className="px-4 py-3 text-fe-text-2 font-mono text-xs">
         #{txn.transactionId || "—"}
       </td>
-      <td className="px-4 py-3 text-fe-text-2 text-sm">{txn.userId || "—"}</td>
-      <td className="px-4 py-3 text-fe-text-2 text-sm">
+      {/* fe-col-secondary: hidden on mobile */}
+      <td className="fe-col-secondary px-4 py-3 text-fe-text-3 text-xs font-mono whitespace-nowrap">
+        {txn.timestamp ? new Date(txn.timestamp).toLocaleTimeString() : "—"}
+      </td>
+      {/* fe-col-secondary: hidden on mobile */}
+      <td className="fe-col-secondary px-4 py-3 text-fe-text-2 text-sm">
+        {txn.userId || "—"}
+      </td>
+      {/* fe-col-optional: hidden on tablet + mobile */}
+      <td className="fe-col-optional px-4 py-3 text-fe-text-2 text-sm">
         {txn.merchantId || "—"}
       </td>
+      {/* Always visible */}
       <td className="px-4 py-3 text-right text-fe-text font-semibold text-sm whitespace-nowrap">
         ₹{txn.amount?.toLocaleString("en-IN") || "—"}
       </td>
+      {/* Always visible */}
       <td className="px-4 py-3 text-center">
         <div className="flex items-center justify-center gap-2">
           <span className={cn("font-bold text-sm", config.color)}>
@@ -60,6 +68,7 @@ function TxnRow({ txn, onClick, isNew }) {
           </div>
         </div>
       </td>
+      {/* Always visible */}
       <td className="px-4 py-3 text-center">
         {txn.riskLabel ? (
           <RiskBadge label={txn.riskLabel} score={txn.riskScore} size="sm" />
@@ -143,10 +152,8 @@ export default function TransactionsFeed() {
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-fe border text-xs font-medium transition-all",
-              showFilters
-                ? "bg-fe-cyan/10 border-fe-cyan/40 text-fe-cyan"
-                : "bg-fe-surface border-fe-border text-fe-text-2 hover:border-fe-border2",
+              "fe-btn-ghost",
+              showFilters && "bg-fe-cyan/10 border-fe-cyan/40 text-fe-cyan",
             )}
           >
             <Filter className="w-3.5 h-3.5" />
@@ -160,7 +167,7 @@ export default function TransactionsFeed() {
           </button>
           <button
             onClick={clear}
-            className="flex items-center gap-2 px-3 py-2 rounded-fe border border-fe-border bg-fe-surface text-fe-text-3 text-xs hover:text-fe-danger hover:border-fe-danger/40 transition-all"
+            className="fe-btn-ghost hover:text-fe-danger hover:border-fe-danger/40"
           >
             <Trash2 className="w-3.5 h-3.5" />
             Clear
@@ -168,7 +175,7 @@ export default function TransactionsFeed() {
         </div>
       </div>
 
-      {/* Stats row */}
+      {/* Stats */}
       <div className="flex items-center gap-2 flex-wrap">
         <StatPill label="Total" value={counts.total} color="border-fe-border" />
         <StatPill label="High" value={counts.high} color="border-rose-500/20" />
@@ -232,7 +239,7 @@ export default function TransactionsFeed() {
               />
               <button
                 onClick={() => setFilters({ riskLabel: "", search: "" })}
-                className="px-3 py-2 rounded-fe border border-fe-border text-fe-text-3 text-xs hover:text-fe-text transition-colors"
+                className="fe-btn-ghost"
               >
                 Reset
               </button>
@@ -243,33 +250,35 @@ export default function TransactionsFeed() {
 
       {/* Table */}
       <div className="fe-glass rounded-fe-xl overflow-hidden fe-glow-cyan">
-        <div className="overflow-x-auto">
+        <div className="fe-table-container">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-fe-border bg-fe-surface/50">
-                {[
-                  "Time",
-                  "Txn ID",
-                  "User",
-                  "Merchant",
-                  "Amount",
-                  "Risk Score",
-                  "Label",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className={cn(
-                      "px-4 py-3 text-fe-text-3 text-xs uppercase tracking-wider font-medium",
-                      h === "Amount" || h === "Risk Score"
-                        ? "text-right"
-                        : h === "Label"
-                          ? "text-center"
-                          : "text-left",
-                    )}
-                  >
-                    {h}
-                  </th>
-                ))}
+                {/* Always visible */}
+                <th className="px-4 py-3 text-fe-text-3 text-xs uppercase tracking-wider font-medium text-left">
+                  Txn ID
+                </th>
+                {/* Hidden on mobile */}
+                <th className="fe-col-secondary px-4 py-3 text-fe-text-3 text-xs uppercase tracking-wider font-medium text-left">
+                  Time
+                </th>
+                <th className="fe-col-secondary px-4 py-3 text-fe-text-3 text-xs uppercase tracking-wider font-medium text-left">
+                  User
+                </th>
+                {/* Hidden on tablet + mobile */}
+                <th className="fe-col-optional px-4 py-3 text-fe-text-3 text-xs uppercase tracking-wider font-medium text-left">
+                  Merchant
+                </th>
+                {/* Always visible */}
+                <th className="px-4 py-3 text-fe-text-3 text-xs uppercase tracking-wider font-medium text-right">
+                  Amount
+                </th>
+                <th className="px-4 py-3 text-fe-text-3 text-xs uppercase tracking-wider font-medium text-right">
+                  Risk Score
+                </th>
+                <th className="px-4 py-3 text-fe-text-3 text-xs uppercase tracking-wider font-medium text-center">
+                  Label
+                </th>
               </tr>
             </thead>
             <tbody>

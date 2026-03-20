@@ -5,10 +5,11 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Radio, Pause, Play, WifiOff } from "lucide-react";
+import { Radio, Pause, Play } from "lucide-react";
 import { LiveDot } from "../../motion";
 import { fadeUp } from "../../motion";
 import { cn } from "../../utils/cn";
+import { LiveBadge } from "../../components/polish";
 
 /* ── Live clock ──────────────────────────────────────────── */
 function LiveClock() {
@@ -22,43 +23,6 @@ function LiveClock() {
   return (
     <span className="font-mono text-[11px] text-[#475569] tabular-nums tracking-wide">
       {time}
-    </span>
-  );
-}
-
-/* ── Stream status pill ──────────────────────────────────── */
-function StreamStatus({ connected, paused }) {
-  if (!connected) {
-    return (
-      <motion.span
-        animate={{ opacity: [1, 0.5, 1] }}
-        transition={{ duration: 1.2, repeat: Infinity }}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                    bg-[#F59E0B0A] border border-[#F59E0B33] text-[11px] font-semibold text-[#F59E0B]"
-      >
-        <WifiOff size={11} strokeWidth={1.5} />
-        Reconnecting…
-      </motion.span>
-    );
-  }
-  if (paused) {
-    return (
-      <span
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                        bg-[#47556918] border border-[#33415533] text-[11px] font-semibold text-[#64748B]"
-      >
-        <Pause size={11} strokeWidth={1.5} />
-        Stream Paused
-      </span>
-    );
-  }
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                      bg-[#22C55E0A] border border-[#22C55E33] text-[11px] font-semibold text-[#22C55E]"
-    >
-      <LiveDot urgency="calm" size={7} />
-      Stream Active
     </span>
   );
 }
@@ -101,7 +65,11 @@ export default function LiveHeader({
 
         {/* Right: controls */}
         <div className="flex items-center gap-3 flex-wrap">
-          <StreamStatus connected={connected} paused={paused} />
+          <LiveBadge
+            variant={
+              connected ? (paused ? "paused" : "active") : "disconnected"
+            }
+          />
           <LiveClock />
           <button
             onClick={onTogglePause}

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldAlert, Eye } from "lucide-react";
 import { SEVERITY, ALERT_STATUS, formatAlertTime } from "./alertsData";
+import { cn } from "../../utils/cn";
 
 // ─── Severity badge ───────────────────────────────────────────────────────────
 const SeverityBadge = ({ severity }) => {
@@ -69,17 +70,16 @@ const AlertItem = ({ alert, isSelected, onClick, isNew }) => {
       animate={{ opacity: 1, x: 0, backgroundColor: "transparent" }}
       transition={{ duration: isNew ? 1.0 : 0.22 }}
       onClick={() => onClick(alert)}
-      className={`
-        relative flex gap-0 cursor-pointer rounded-xl border transition-all duration-150 overflow-hidden group
-        ${
-          isSelected
-            ? `${sev.bgStrong} ${sev.borderStrong} ${sev.glow}`
-            : `bg-slate-900/50 border-slate-800/80 hover:bg-slate-800/60 hover:border-slate-700/60`
-        }
-        ${isResolved ? "opacity-60" : ""}
-        ${isCritical && !isSelected ? "hover:border-rose-500/25" : ""}
-        ${isHigh && !isSelected ? "hover:border-orange-500/20" : ""}
-      `}
+      className={cn(
+        "relative flex gap-0 cursor-pointer rounded-xl border transition-all duration-150 overflow-hidden group",
+        isSelected
+          ? `${sev.bgStrong} ${sev.borderStrong} ${sev.glow}`
+          : "bg-slate-900/50 border-slate-800/80 hover:bg-slate-800/60 hover:border-slate-700/60",
+        isResolved && "opacity-60",
+        isCritical && !isSelected && "hover:border-rose-500/25",
+        isHigh && !isSelected && "hover:border-orange-500/20",
+        isCritical && "fe-glow-critical-pulse",
+      )}
     >
       {/* Left severity edge */}
       <div

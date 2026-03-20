@@ -11,9 +11,9 @@
  *   SectionHeading — standard section label
  */
 
-import { motion } from 'framer-motion';
-import { Construction } from 'lucide-react';
-import { cn } from '../../utils/cn';
+import { motion } from "framer-motion";
+import { Construction } from "lucide-react";
+import { cn } from "../../utils/cn";
 
 /* ============================================================
    REUSABLE LAYOUT HELPERS
@@ -26,15 +26,16 @@ import { cn } from '../../utils/cn';
  *
  * Usage:  <PageWrapper>  ...page content...  </PageWrapper>
  */
-export function PageWrapper({ children, className = '' }) {
+export function PageWrapper({ children, className = "" }) {
   return (
-    <div className={cn(
-      'w-full min-h-full',
-      'px-5 md:px-6 lg:px-8',
-      'pt-6 pb-12',
-      'max-w-[1600px] mx-auto',
-      className,
-    )}>
+    <div
+      className={cn(
+        "w-full min-h-full",
+        "px-5 md:px-6 lg:px-8",
+        "pt-6 pb-12",
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -52,22 +53,21 @@ export function PageWrapper({ children, className = '' }) {
  *     actions={<button>...</button>}
  *   />
  */
-export function PageHeader({ title, sub, actions, className = '' }) {
+export function PageHeader({ title, sub, actions, className = "" }) {
   return (
-    <div className={cn(
-      'flex items-start justify-between gap-4 mb-6',
-      className,
-    )}>
+    <div
+      className={cn("flex items-start justify-between gap-4 mb-6", className)}
+    >
       <div>
-        <h2 className="text-xl font-bold text-[#F8FAFC] leading-none">{title}</h2>
+        <h2 className="text-xl font-bold text-[#F8FAFC] leading-none">
+          {title}
+        </h2>
         {sub && (
           <p className="text-sm text-[#475569] mt-1.5 leading-none">{sub}</p>
         )}
       </div>
       {actions && (
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {actions}
-        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>
       )}
     </div>
   );
@@ -82,9 +82,14 @@ export function PageHeader({ title, sub, actions, className = '' }) {
  *     ...table or cards...
  *   </PageSection>
  */
-export function PageSection({ label, children, className = '', action = null }) {
+export function PageSection({
+  label,
+  children,
+  className = "",
+  action = null,
+}) {
   return (
-    <section className={cn('mb-8', className)}>
+    <section className={cn("mb-8", className)}>
       {label && (
         <div className="flex items-center justify-between mb-4">
           <h3 className="fe-section-heading">{label}</h3>
@@ -104,14 +109,14 @@ export function PageSection({ label, children, className = '', action = null }) 
  *
  * Usage:  <ContentGrid variant="kpi">  <KPICard/>...  </ContentGrid>
  */
-export function ContentGrid({ children, variant = 'default', className = '' }) {
+export function ContentGrid({ children, variant = "default", className = "" }) {
   const variants = {
-    default: 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4',
-    kpi:     'grid grid-cols-2 lg:grid-cols-4 gap-4',
-    cards:   'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4',
-    split:   'grid grid-cols-1 lg:grid-cols-2 gap-4',
-    thirds:  'grid grid-cols-1 md:grid-cols-3 gap-4',
-    full:    'flex flex-col gap-4',
+    default: "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4",
+    kpi: "grid grid-cols-2 lg:grid-cols-4 gap-4",
+    cards: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4",
+    split: "grid grid-cols-1 lg:grid-cols-2 gap-4",
+    thirds: "grid grid-cols-1 md:grid-cols-3 gap-4",
+    full: "flex flex-col gap-4",
   };
 
   return (
@@ -124,8 +129,8 @@ export function ContentGrid({ children, variant = 'default', className = '' }) {
 /**
  * SectionDivider — thin horizontal rule between major sections.
  */
-export function SectionDivider({ className = '' }) {
-  return <hr className={cn('border-t border-[#0F172A] my-6', className)} />;
+export function SectionDivider({ className = "" }) {
+  return <hr className={cn("border-t border-[#0F172A] my-6", className)} />;
 }
 
 /**
@@ -134,23 +139,21 @@ export function SectionDivider({ className = '' }) {
  *
  * Usage:  <GlassCard glow="fe-glow-cyan">...</GlassCard>
  */
-export function GlassCard({ children, glow = '', className = '' }) {
-  return (
-    <div className={cn('fe-glass p-5', glow, className)}>
-      {children}
-    </div>
-  );
+export function GlassCard({ children, glow = "", className = "" }) {
+  return <div className={cn("fe-glass p-5", glow, className)}>{children}</div>;
 }
 
 /**
  * InlineLabel — tiny uppercase label used inside cards.
  */
-export function InlineLabel({ children, className = '' }) {
+export function InlineLabel({ children, className = "" }) {
   return (
-    <p className={cn(
-      'text-[10px] font-semibold uppercase tracking-widest text-[#334155]',
-      className,
-    )}>
+    <p
+      className={cn(
+        "text-[10px] font-semibold uppercase tracking-widest text-[#334155]",
+        className,
+      )}
+    >
       {children}
     </p>
   );
@@ -160,7 +163,7 @@ export function InlineLabel({ children, className = '' }) {
    PAGE SHELL PLACEHOLDER
    Temporary stand-in. Replace with real page in next phases.
    ============================================================ */
-export default function PageShell({ title = 'Page' }) {
+export default function PageShell({ title = "Page" }) {
   return (
     <PageWrapper>
       <motion.div
@@ -170,8 +173,10 @@ export default function PageShell({ title = 'Page' }) {
         className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center"
       >
         {/* Icon */}
-        <div className="w-16 h-16 rounded-2xl bg-[#22D3EE08] border border-[#22D3EE18]
-                        flex items-center justify-center">
+        <div
+          className="w-16 h-16 rounded-2xl bg-[#22D3EE08] border border-[#22D3EE18]
+                        flex items-center justify-center"
+        >
           <Construction size={28} className="text-[#334155]" strokeWidth={1} />
         </div>
 

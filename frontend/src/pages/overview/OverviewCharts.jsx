@@ -1,10 +1,10 @@
-import FraudTrendChart from "../../charts/FraudTrendChart";
-import DistributionChart from "../../charts/DistributionChart";
-import RiskBandChart from "../../charts/RiskBandChart";
-import MerchantRiskChart from "../../charts/MerchantRiskChart";
-import DecisionTrendChart from "../../charts/DecisionTrendChart";
-import ActivityHeatmap from "../../charts/ActivityHeatmap";
-import AIInsightsMinis from "../../charts/AIInsightsMinis";
+import FraudTrendChart from "../charts/FraudTrendChart";
+import DistributionChart from "../charts/DistributionChart";
+import RiskBandChart from "../charts/RiskBandChart";
+import MerchantRiskChart from "../charts/MerchantRiskChart";
+import DecisionTrendChart from "../charts/DecisionTrendChart";
+import ActivityHeatmap from "../charts/ActivityHeatmap";
+import AIInsightsMinis from "../charts/AIInsightsMinis";
 
 const OverviewCharts = () => (
   <div className="space-y-4">

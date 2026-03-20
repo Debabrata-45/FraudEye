@@ -7,6 +7,7 @@ import {
   formatExactTime,
 } from "./auditData";
 import { formatDistanceToNow } from "date-fns";
+import { MetaRow } from "../../components/Responsive";
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 const Section = ({ title, icon: _Icon, children }) => (
@@ -18,16 +19,6 @@ const Section = ({ title, icon: _Icon, children }) => (
       </span>
     </div>
     {children}
-  </div>
-);
-
-// ─── Meta row ─────────────────────────────────────────────────────────────────
-const MetaRow = ({ label, value, accent }) => (
-  <div className="flex items-center justify-between py-1.5 border-b border-slate-800/60 last:border-0">
-    <span className="text-xs text-slate-500">{label}</span>
-    <span className={`text-xs font-medium ${accent || "text-slate-200"}`}>
-      {value}
-    </span>
   </div>
 );
 
@@ -121,8 +112,7 @@ const AuditDrawer = ({ log, onClose }) => {
                 </div>
                 <div className="mt-3 flex items-center gap-2 flex-wrap">
                   <span
-                    className={`text-[11px] font-medium px-2 py-0.5 rounded-md border
-                    ${resultCfg.bg} ${resultCfg.border} ${resultCfg.text}`}
+                    className={`text-[11px] font-medium px-2 py-0.5 rounded-md border ${resultCfg.bg} ${resultCfg.border} ${resultCfg.text}`}
                   >
                     {resultCfg.label}
                   </span>
@@ -137,18 +127,15 @@ const AuditDrawer = ({ log, onClose }) => {
                 </div>
               </div>
 
-              {/* Who & when */}
+              {/* Who & when — MetaRow from responsive */}
               <Section title="Who & When" icon={User}>
                 <div className="bg-slate-800/30 rounded-lg px-3 py-1 border border-slate-700/30">
-                  <MetaRow
-                    label="Actor"
-                    value={log.actor.name}
-                    accent={actorCfg.color}
-                  />
+                  <MetaRow label="Actor" value={log.actor.name} />
                   <MetaRow label="Role" value={log.actor.role} />
                   <MetaRow
                     label="Exact Time"
                     value={formatExactTime(log.timestamp)}
+                    mono
                   />
                   <MetaRow
                     label="Relative"
@@ -161,36 +148,20 @@ const AuditDrawer = ({ log, onClose }) => {
                       </span>
                     }
                   />
-                  <MetaRow
-                    label="IP Address"
-                    value={log.ipAddress}
-                    accent="text-slate-400"
-                  />
-                  <MetaRow
-                    label="Session ID"
-                    value={log.sessionId}
-                    accent="text-slate-500"
-                  />
+                  <MetaRow label="IP Address" value={log.ipAddress} mono />
+                  <MetaRow label="Session ID" value={log.sessionId} mono />
                 </div>
               </Section>
 
               {/* Affected entities */}
               <Section title="Affected Entities" icon={Hash}>
                 <div className="bg-slate-800/30 rounded-lg px-3 py-1 border border-slate-700/30">
-                  <MetaRow
-                    label="Transaction"
-                    value={log.entityId}
-                    accent="text-cyan-300"
-                  />
-                  <MetaRow
-                    label="Case ID"
-                    value={log.caseId}
-                    accent="text-violet-300"
-                  />
+                  <MetaRow label="Transaction" value={log.entityId} mono />
+                  <MetaRow label="Case ID" value={log.caseId} mono />
                 </div>
               </Section>
 
-              {/* Before / after state */}
+              {/* Before / after */}
               {log.beforeAfter && (
                 <Section title="State Change" icon={ArrowRight}>
                   <div className="flex gap-2">

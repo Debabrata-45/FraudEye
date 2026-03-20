@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { SEVERITY, ALERT_STATUS, formatAlertTime } from "./alertsData";
 import { formatDistanceToNow } from "date-fns";
+import { MetaRow } from "../../components/Responsive";
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 const Section = ({ title, icon: _Icon, children }) => (
@@ -23,16 +24,6 @@ const Section = ({ title, icon: _Icon, children }) => (
       </span>
     </div>
     {children}
-  </div>
-);
-
-// ─── Meta row ─────────────────────────────────────────────────────────────────
-const MetaRow = ({ label, value, accent }) => (
-  <div className="flex items-center justify-between py-1.5 border-b border-slate-800/60 last:border-0">
-    <span className="text-xs text-slate-500">{label}</span>
-    <span className={`text-xs font-medium ${accent || "text-slate-200"}`}>
-      {value}
-    </span>
   </div>
 );
 
@@ -102,7 +93,7 @@ const AlertDrawer = ({ alert, onClose }) => {
         )}
       </div>
 
-      {/* Scrollable body */}
+      {/* Body */}
       <div className="flex-1 overflow-y-auto px-5 py-4">
         <AnimatePresence mode="wait">
           {!alert ? (
@@ -122,7 +113,7 @@ const AlertDrawer = ({ alert, onClose }) => {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.18 }}
             >
-              {/* Severity headline card */}
+              {/* Severity headline */}
               <div
                 className={`p-4 rounded-xl border mb-5 ${sev.bgStrong} ${sev.borderStrong}`}
                 style={{ boxShadow: `0 0 24px ${sev.color}15` }}
@@ -156,8 +147,6 @@ const AlertDrawer = ({ alert, onClose }) => {
                 <p className="text-xs text-slate-400 leading-relaxed">
                   {alert.summary}
                 </p>
-
-                {/* Risk bar */}
                 <div className="mt-3 h-1.5 bg-black/30 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
@@ -189,18 +178,14 @@ const AlertDrawer = ({ alert, onClose }) => {
                 </div>
               </div>
 
-              {/* Alert context */}
+              {/* Alert context — MetaRow from responsive */}
               <Section title="Alert Context" icon={Hash}>
                 <div className="bg-slate-800/30 rounded-lg px-3 py-1 border border-slate-700/30">
                   <MetaRow
                     label="Triggered"
                     value={formatAlertTime(alert.timestamp)}
                   />
-                  <MetaRow
-                    label="Linked TXN"
-                    value={alert.txnId}
-                    accent="text-cyan-300"
-                  />
+                  <MetaRow label="Linked TXN" value={alert.txnId} />
                   <MetaRow
                     label={alert.entity.type}
                     value={alert.entity.value}
@@ -223,7 +208,6 @@ const AlertDrawer = ({ alert, onClose }) => {
                           {alert.assignedTo}
                         </span>
                       }
-                      accent="text-violet-300"
                     />
                   )}
                   {alert.resolvedAt && (
@@ -237,7 +221,6 @@ const AlertDrawer = ({ alert, onClose }) => {
                           })}
                         </span>
                       }
-                      accent="text-emerald-300"
                     />
                   )}
                 </div>
@@ -252,50 +235,42 @@ const AlertDrawer = ({ alert, onClose }) => {
                 </div>
               </Section>
 
-              {/* Analyst actions */}
+              {/* Triage actions */}
               <Section title="Triage Actions" icon={FileSearch}>
                 <div className="flex flex-col gap-2">
-                  <button className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/40 transition-all group">
-                    <span className="text-xs font-semibold">
-                      Escalate Alert
-                    </span>
-                    <ChevronRight
-                      size={13}
-                      className="opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
-                    />
-                  </button>
-                  <button className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/40 transition-all group">
-                    <span className="text-xs font-semibold">
-                      Mark Under Review
-                    </span>
-                    <ChevronRight
-                      size={13}
-                      className="opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
-                    />
-                  </button>
-                  <button className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 hover:bg-emerald-500/20 hover:border-emerald-500/40 transition-all group">
-                    <span className="text-xs font-semibold">Resolve Alert</span>
-                    <ChevronRight
-                      size={13}
-                      className="opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
-                    />
-                  </button>
-                  <button className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-violet-500/10 border border-violet-500/25 text-violet-300 hover:bg-violet-500/20 hover:border-violet-500/40 transition-all group">
-                    <span className="text-xs font-semibold">
-                      Open Investigation
-                    </span>
-                    <ChevronRight
-                      size={13}
-                      className="opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
-                    />
-                  </button>
-                  <button className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-slate-700/30 border border-slate-600/30 text-slate-400 hover:bg-slate-700/50 hover:text-slate-300 transition-all group">
-                    <span className="text-xs font-semibold">Dismiss</span>
-                    <ChevronRight
-                      size={13}
-                      className="opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
-                    />
-                  </button>
+                  {[
+                    {
+                      label: "Escalate Alert",
+                      cls: "bg-rose-500/10 border-rose-500/25 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/40",
+                    },
+                    {
+                      label: "Mark Under Review",
+                      cls: "bg-amber-500/10 border-amber-500/25 text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/40",
+                    },
+                    {
+                      label: "Resolve Alert",
+                      cls: "bg-emerald-500/10 border-emerald-500/25 text-emerald-300 hover:bg-emerald-500/20 hover:border-emerald-500/40",
+                    },
+                    {
+                      label: "Open Investigation",
+                      cls: "bg-violet-500/10 border-violet-500/25 text-violet-300 hover:bg-violet-500/20 hover:border-violet-500/40",
+                    },
+                    {
+                      label: "Dismiss",
+                      cls: "bg-slate-700/30 border-slate-600/30 text-slate-400 hover:bg-slate-700/50 hover:text-slate-300",
+                    },
+                  ].map(({ label, cls }) => (
+                    <button
+                      key={label}
+                      className={`flex items-center justify-between w-full px-3 py-2.5 rounded-lg border transition-all group ${cls}`}
+                    >
+                      <span className="text-xs font-semibold">{label}</span>
+                      <ChevronRight
+                        size={13}
+                        className="opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
+                      />
+                    </button>
+                  ))}
                 </div>
               </Section>
             </motion.div>

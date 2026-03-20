@@ -1,8 +1,7 @@
 /**
- * KPIRow.jsx — Primary KPI summary row
- * 6 cards: Total Txns, Fraud Detected, Under Review, Approved, Avg Risk, Model Accuracy
+ * KPIRow.jsx — Real API KPIs with mock fallback
+ * Fixes avg risk score formatting
  */
-
 import { motion } from "framer-motion";
 import {
   Activity,
@@ -17,6 +16,8 @@ import { TrendIndicator } from "../../components/ui/MetricCard";
 import { AnimatedCounter } from "../../motion";
 import { staggerNormal, fadeUp, EASING } from "../../motion";
 import { cn } from "../../utils/cn";
+import { useSpotlightGroup } from "../../components/polish";
+import { useOverviewKPIs } from "./useOverviewData";
 import {
   MOCK_KPIS,
   SPARK_TOTAL,
@@ -26,7 +27,6 @@ import {
   SPARK_RISK,
 } from "./overviewData";
 
-/* ── Accent token map ────────────────────────────────────── */
 const ACCENT = {
   cyan: {
     text: "#22D3EE",
@@ -60,7 +60,6 @@ const ACCENT = {
   },
 };
 
-/* ── Mini sparkline ──────────────────────────────────────── */
 function Spark({ data, color }) {
   const chartData = data.map((v, i) => ({ i, v }));
   return (
@@ -97,7 +96,6 @@ function Spark({ data, color }) {
   );
 }
 
-/* ── Single KPI card ─────────────────────────────────────── */
 function KPICard({
   icon: _Icon,
   title,
@@ -109,26 +107,23 @@ function KPICard({
   stagger = 0,
 }) {
   const a = ACCENT[accent] ?? ACCENT.cyan;
-
   return (
     <motion.div
       variants={fadeUp}
       transition={{ delay: stagger * 0.07, duration: 0.3, ease: EASING.out }}
       whileHover={{ y: -3, transition: { duration: 0.15 } }}
       className={cn(
-        "relative flex flex-col p-5 rounded-xl border overflow-hidden",
+        "fe-spotlight relative flex flex-col p-5 rounded-xl border overflow-hidden",
         "bg-[#0D1627] transition-shadow duration-200 cursor-default",
         a.border,
         a.shadow,
       )}
     >
-      {/* Corner glow blob */}
       <span
         className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-15 blur-2xl pointer-events-none"
         style={{ background: a.text }}
       />
 
-      {/* Row 1: title + icon */}
       <div className="flex items-center justify-between mb-2">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-[#475569] leading-none">
           {title}
@@ -141,14 +136,12 @@ function KPICard({
         </span>
       </div>
 
-      {/* Row 2: value */}
       <AnimatedCounter
         value={value}
         color={a.text}
         className="text-[26px] font-bold tracking-tight leading-none mt-1"
       />
 
-      {/* Row 3: delta */}
       {delta && (
         <div className="flex items-center gap-1.5 mt-1.5">
           <TrendIndicator delta={delta} type={deltaType} size="xs" />
@@ -156,22 +149,23 @@ function KPICard({
         </div>
       )}
 
-      {/* Sparkline */}
       {sparkData && <Spark data={sparkData} color={a.text} />}
     </motion.div>
   );
 }
 
-/* ── KPI Row ─────────────────────────────────────────────── */
 export default function KPIRow() {
-  const k = MOCK_KPIS;
+  const { kpis, loading } = useOverviewKPIs();
+  const k = kpis ?? MOCK_KPIS;
+  const gridRef = useSpotlightGroup(".fe-spotlight");
 
   return (
     <motion.div
+      ref={gridRef}
       variants={staggerNormal}
       initial="hidden"
       animate="visible"
-      className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8"
+      className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8 w-full"
     >
       <KPICard
         icon={Activity}

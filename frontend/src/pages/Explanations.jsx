@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Brain } from "lucide-react";
 
 import { PageWrapper } from "../components/layout/PageShell";
+import { SplitLayout } from "../components/Responsive";
 import ExplanationsHeader from "./explanations/ExplanationsHeader";
 import CaseSelector from "./explanations/CaseSelector";
 import ExplanationSummary from "./explanations/ExplanationSummary";
@@ -11,7 +12,7 @@ import FraudDrivers from "./explanations/FraudDrivers";
 import RelatedTransaction from "./explanations/RelatedTransaction";
 import { MOCK_CASES } from "./explanations/explanationsData";
 
-// ─── Empty / no selection ─────────────────────────────────────────────────────
+// ─── Empty state ──────────────────────────────────────────────────────────────
 const EmptyExplanation = () => (
   <motion.div
     initial={{ opacity: 0 }}
@@ -22,7 +23,6 @@ const EmptyExplanation = () => (
       <div className="w-20 h-20 rounded-2xl bg-slate-800/60 border border-slate-700/40 flex items-center justify-center">
         <Brain size={32} className="text-slate-600" />
       </div>
-      {/* Orbit rings */}
       <div
         className="absolute inset-0 rounded-2xl border border-violet-500/10 scale-110 animate-ping"
         style={{ animationDuration: "3s" }}
@@ -45,7 +45,6 @@ const EmptyExplanation = () => (
 // ─── Loading state ────────────────────────────────────────────────────────────
 const ExplanationLoading = () => (
   <div className="space-y-4">
-    {/* Summary skeleton */}
     <div className="rounded-2xl border border-slate-800 p-5 space-y-3">
       <div className="flex gap-4">
         <div className="w-16 h-16 rounded-full bg-slate-800 animate-pulse flex-shrink-0" />
@@ -56,7 +55,6 @@ const ExplanationLoading = () => (
         </div>
       </div>
     </div>
-    {/* Chart skeleton */}
     <div className="rounded-2xl border border-slate-800 p-5 space-y-3">
       <div className="h-4 w-40 rounded bg-slate-800 animate-pulse" />
       {Array.from({ length: 5 }, (_, i) => (
@@ -72,6 +70,46 @@ const ExplanationLoading = () => (
   </div>
 );
 
+// ─── Explanation workspace (right panel content) ──────────────────────────────
+const ExplanationWorkspace = ({ selectedCase, explaining }) => (
+  <AnimatePresence mode="wait">
+    {explaining ? (
+      <motion.div
+        key="loading"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        <ExplanationLoading />
+      </motion.div>
+    ) : !selectedCase ? (
+      <motion.div
+        key="empty"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.25 }}
+      >
+        <EmptyExplanation />
+      </motion.div>
+    ) : (
+      <motion.div
+        key={selectedCase.id}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.3 }}
+      >
+        <ExplanationSummary xcase={selectedCase} />
+        <ContributionChart xcase={selectedCase} />
+        <FraudDrivers xcase={selectedCase} />
+        <RelatedTransaction xcase={selectedCase} />
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 const Explanations = () => {
   const [cases, setCases] = useState([]);
@@ -79,7 +117,6 @@ const Explanations = () => {
   const [selectedCase, setSelectedCase] = useState(null);
   const [explaining, setExplaining] = useState(false);
 
-  // Load cases
   useEffect(() => {
     setLoading(true);
     const t = setTimeout(() => {
@@ -89,7 +126,6 @@ const Explanations = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // Simulate "fetching" explanation on case change
   const handleSelectCase = useCallback(
     (xcase) => {
       if (selectedCase?.id === xcase.id) return;
@@ -109,65 +145,25 @@ const Explanations = () => {
       <div className="flex flex-col h-full min-h-0">
         <ExplanationsHeader selectedCase={selectedCase} />
 
-        {/* Main layout: case list + explanation workspace */}
-        <div className="flex flex-1 gap-4 min-h-0 overflow-hidden">
-          {/* Left: case selector */}
-          <div className="w-64 flex-shrink-0 overflow-y-auto">
+        <SplitLayout
+          list={
             <CaseSelector
               cases={cases}
               selectedId={selectedCase?.id}
               onSelect={handleSelectCase}
               loading={loading}
             />
-          </div>
-
-          {/* Right: explanation workspace */}
-          <div className="flex-1 min-w-0 overflow-y-auto">
-            <AnimatePresence mode="wait">
-              {explaining ? (
-                <motion.div
-                  key="loading"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ExplanationLoading />
-                </motion.div>
-              ) : !selectedCase ? (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <EmptyExplanation />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key={selectedCase.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {/* 1 — Executive summary */}
-                  <ExplanationSummary xcase={selectedCase} />
-
-                  {/* 2 — Contribution chart */}
-                  <ContributionChart xcase={selectedCase} />
-
-                  {/* 3 — Drivers + confidence + recommendation */}
-                  <FraudDrivers xcase={selectedCase} />
-
-                  {/* 4 — Related transaction */}
-                  <RelatedTransaction xcase={selectedCase} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+          }
+          detail={
+            <ExplanationWorkspace
+              selectedCase={selectedCase}
+              explaining={explaining}
+            />
+          }
+          detailOpen={!!selectedCase || explaining}
+          height={600}
+          listCols={1}
+        />
       </div>
     </PageWrapper>
   );

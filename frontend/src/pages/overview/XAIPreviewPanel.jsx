@@ -13,6 +13,7 @@ import {
 } from "../../components/ui/XAI";
 import { fadeUp } from "../../motion";
 import { MOCK_XAI_SAMPLE } from "./overviewData";
+import { ElitePanel } from "../../components/polish";
 
 /* ── Driver chip ─────────────────────────────────────────── */
 function DriverChip({ label }) {
@@ -33,7 +34,7 @@ export default function XAIPreviewPanel() {
   const maxAbs = Math.max(...xai.features.map((f) => Math.abs(f.value)));
 
   return (
-    <div className="bg-[#0D1627] border border-[#1E293B] rounded-xl overflow-hidden">
+    <ElitePanel className="h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-[#0F172A]">
         <div className="flex items-center gap-2">
@@ -124,6 +125,6 @@ export default function XAIPreviewPanel() {
           reason="High confidence fraud signal with velocity and geo-anomaly as primary drivers."
         />
       </div>
-    </div>
+    </ElitePanel>
   );
 }

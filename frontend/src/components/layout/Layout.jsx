@@ -1,8 +1,5 @@
 /**
  * Layout.jsx — FraudEye Main Dashboard Shell
- *
- * Renders: <Sidebar> + <Topbar> + <main content area>
- * Handles: sidebar collapsed state, mobile overlay, live clock
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -10,6 +7,7 @@ import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
+import { useSidebarBehavior, useMobileMenu } from "../Responsive";
 
 /* ── Page title map ────────────────────────────────────────── */
 const PAGE_META = {
@@ -26,14 +24,20 @@ const PAGE_META = {
   "/settings": { title: "Settings", sub: "System and account config" },
 };
 
-const SIDEBAR_W = 240; // px — expanded
-const SIDEBAR_W_MINI = 64; // px — icon-only collapsed
+const SIDEBAR_W = 240;
+const SIDEBAR_W_MINI = 64;
 
 export default function Layout({ children }) {
   const location = useLocation();
 
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { defaultCollapsed } = useSidebarBehavior();
+  const {
+    isOpen: mobileOpen,
+    toggle: toggleMobile,
+    close: closeMobile,
+  } = useMobileMenu();
+
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [isMobile, setIsMobile] = useState(false);
 
   /* Check viewport width */
@@ -48,23 +52,26 @@ export default function Layout({ children }) {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  /* Close mobile drawer on route change.
-     Intentional setState in effect: the drawer must close on every navigation.
-     This does not cascade — location.pathname changes exactly once per nav. */
+  /* Sync collapsed with defaultCollapsed on first meaningful resize */
   useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
+    if (!isMobile) setCollapsed(defaultCollapsed);
+  }, [defaultCollapsed, isMobile]);
+
+  /* Close mobile drawer on route change */
+  useEffect(() => {
+    closeMobile();
+  }, [location.pathname, closeMobile]);
 
   const toggleSidebar = useCallback(() => {
-    if (isMobile) setMobileOpen((v) => !v);
+    if (isMobile) toggleMobile();
     else setCollapsed((v) => !v);
-  }, [isMobile]);
+  }, [isMobile, toggleMobile]);
 
   const meta = PAGE_META[location.pathname] ?? { title: "FraudEye", sub: "" };
   const sidebarWidth = isMobile ? 0 : collapsed ? SIDEBAR_W_MINI : SIDEBAR_W;
 
   return (
-    <div className="relative flex h-screen w-full overflow-hidden bg-[#020617]">
+    <div className="relative flex h-screen w-full bg-[#020617]">
       {/* ── Sidebar (desktop) ──────────────────────────────── */}
       {!isMobile && (
         <Sidebar
@@ -86,7 +93,7 @@ export default function Layout({ children }) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
-              onClick={() => setMobileOpen(false)}
+              onClick={closeMobile}
             />
             <motion.div
               key="drawer"
@@ -99,7 +106,7 @@ export default function Layout({ children }) {
             >
               <Sidebar
                 collapsed={false}
-                onToggle={() => setMobileOpen(false)}
+                onToggle={closeMobile}
                 width={SIDEBAR_W}
                 miniWidth={SIDEBAR_W_MINI}
                 isMobileDrawer
@@ -122,7 +129,7 @@ export default function Layout({ children }) {
           isMobile={isMobile}
         />
 
-        <main id="fe-main" className="flex-1 overflow-y-auto overflow-x-hidden">
+        <main id="fe-main" className="flex-1 overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -130,7 +137,7 @@ export default function Layout({ children }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.22, ease: "easeOut" }}
-              className="h-full"
+              className="h-full w-full"
             >
               {children}
             </motion.div>
