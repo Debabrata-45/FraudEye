@@ -87,7 +87,7 @@ const FraudDrivers = ({ xcase }) => (
         <Zap size={14} className="text-amber-400" />
         <h3 className="text-sm font-bold text-slate-100">Key Fraud Drivers</h3>
         <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 font-medium ml-auto">
-          {xcase.drivers.length} signals
+          {(xcase.drivers ?? xcase.topDrivers ?? []).length} signals
         </span>
       </div>
       <p className="text-xs text-slate-500 mb-3">
@@ -95,8 +95,12 @@ const FraudDrivers = ({ xcase }) => (
         transaction.
       </p>
       <div className="flex flex-wrap gap-2">
-        {xcase.drivers.map((d, i) => (
-          <DriverChip key={i} {...d} index={i} />
+        {(xcase.drivers ?? xcase.topDrivers ?? []).map((d, i) => (
+          <DriverChip
+            key={i}
+            {...(typeof d === "string" ? { label: d, feature: d } : d)}
+            index={i}
+          />
         ))}
       </div>
     </motion.div>

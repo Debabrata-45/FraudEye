@@ -183,19 +183,19 @@ const AlertDrawer = ({ alert, onClose }) => {
                 <div className="bg-slate-800/30 rounded-lg px-3 py-1 border border-slate-700/30">
                   <MetaRow
                     label="Triggered"
-                    value={formatAlertTime(alert.timestamp)}
+                    value={formatAlertTime(alert.ts ?? alert.timestamp)}
                   />
                   <MetaRow label="Linked TXN" value={alert.txnId} />
                   <MetaRow
-                    label={alert.entity.type}
-                    value={alert.entity.value}
+                    label={alert.entity?.type ?? "Merchant"}
+                    value={alert.entity?.value ?? alert.merchant ?? "—"}
                   />
                   <MetaRow
                     label="Location"
                     value={
                       <span className="flex items-center gap-1">
                         <MapPin size={9} />
-                        {alert.geo}
+                        {alert.geo ?? "-"}
                       </span>
                     }
                   />

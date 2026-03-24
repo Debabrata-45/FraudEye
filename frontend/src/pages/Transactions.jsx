@@ -10,13 +10,15 @@ import {
 } from "lucide-react";
 
 import { PageWrapper } from "../components/layout/PageShell";
-import { ControlsBar, DataTable } from "../components/responsive";
+import { ControlsBar, DataTable } from "../components/Responsive";
 import TransactionsHeader from "./transactions/TransactionsHeader";
 import TransactionsControls from "./transactions/TransactionsControls";
 import TransactionsTable from "./transactions/TransactionsTable";
 import TransactionDrawer from "./transactions/TransactionDrawer";
-import { TransactionsFallbacks } from "../components/feedback";
-import { InlineFilterEmpty } from "../components/feedback";
+import {
+  TransactionsFallbacks,
+  InlineFilterEmpty,
+} from "../components/feedback";
 import { useTransactions } from "./overview/useOverviewData";
 import {
   MOCK_TRANSACTIONS,
@@ -36,30 +38,25 @@ const Transactions = () => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [selectedTx, setSelectedTx] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [dataMode, setDataMode] = useState("live"); // "live" | "demo"
+  const [dataMode, setDataMode] = useState("live");
 
   const {
     data: realData,
     loading,
     error,
     isRealData,
-  } = useTransactions({ limit: 50 });
+  } = useTransactions({ limit: 200 });
 
-  // ── Smart merge strategy ──────────────────────────────
+  /* ── Smart merge ─────────────────────────────────────── */
   const transactions = useMemo(() => {
-    if (dataMode === "demo") {
-      // Demo only — full synthetic dataset
-      return MOCK_TRANSACTIONS;
-    }
+    if (dataMode === "demo") return MOCK_TRANSACTIONS;
     if (realData.length > 0) {
-      // Live mode — real data at top + 20 mock as historical demo
       const mockHistory = MOCK_TRANSACTIONS.slice(0, 20).map((t) => ({
         ...t,
         isDemoHistory: true,
       }));
       return [...realData, ...mockHistory];
     }
-    // No real data yet — fall back to full mock
     return MOCK_TRANSACTIONS;
   }, [realData, dataMode]);
 
@@ -77,6 +74,7 @@ const Transactions = () => {
     [filters],
   );
 
+  /* ── Handlers ────────────────────────────────────────── */
   const handleSelectRow = useCallback((tx) => {
     setSelectedTx(tx);
     setDrawerOpen(true);
@@ -92,6 +90,38 @@ const Transactions = () => {
     [],
   );
 
+  /* ── Export ──────────────────────────────────────────── */
+  const handleExport = useCallback(() => {
+    const headers = [
+      "ID",
+      "Merchant",
+      "Amount",
+      "Currency",
+      "Status",
+      "Risk Score",
+      "Label",
+      "Time",
+    ];
+    const rows = filtered.map((t) => [
+      t.id,
+      t.merchant?.name ?? t.merchant ?? "—",
+      t.amount,
+      t.currency ?? "INR",
+      t.status ?? "—",
+      t.riskScore ?? "—",
+      t.fraudLabel ?? "—",
+      t.timestamp ? new Date(t.timestamp).toLocaleString() : "—",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `fraudeye_transactions_${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [filtered]);
+
   if (loading) return <TransactionsFallbacks.Loading />;
   if (error && !transactions.length) return <TransactionsFallbacks.Error />;
 
@@ -104,7 +134,7 @@ const Transactions = () => {
             <TransactionsHeader summary={summary} isStreaming={isRealData} />
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 pt-1">
-            {/* Data mode toggle */}
+            {/* Mode toggle */}
             <button
               onClick={() =>
                 setDataMode((m) => (m === "live" ? "demo" : "live"))
@@ -117,21 +147,22 @@ const Transactions = () => {
             >
               {dataMode === "live" ? (
                 <>
-                  <Wifi size={11} />
-                  Live + Demo
+                  <Wifi size={11} /> Live + Demo
                 </>
               ) : (
                 <>
-                  <WifiOff size={11} />
-                  Demo Only
+                  <WifiOff size={11} /> Demo Only
                 </>
               )}
             </button>
 
-            <button className="fe-btn-ghost">
+            {/* Export — now functional */}
+            <button onClick={handleExport} className="fe-btn-ghost">
               <Download size={12} />
               Export
             </button>
+
+            {/* Drawer toggle */}
             <button
               onClick={() =>
                 drawerOpen ? handleCloseDrawer() : setDrawerOpen(true)
@@ -148,7 +179,7 @@ const Transactions = () => {
           </div>
         </div>
 
-        {/* Data source banner */}
+        {/* Live banner */}
         {dataMode === "live" && realData.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -4 }}

@@ -18,6 +18,7 @@ import OverviewCharts from "./overview/OverviewCharts";
 import AIInsightsPanel from "./overview/AIInsightsPanel";
 import LiveAlertsPanel from "./overview/LiveAlertsPanel";
 import XAIPreviewPanel from "./overview/XAIPreviewPanel";
+import { useOverviewKPIs } from "./overview/useOverviewData";
 
 /* ── Loading state ───────────────────────────────────────── */
 function OverviewSkeleton() {
@@ -51,6 +52,7 @@ function OverviewSkeleton() {
 /* ── Main Overview page ──────────────────────────────────── */
 export default function Overview() {
   const [loading, setLoading] = useState(true);
+  const { kpis } = useOverviewKPIs();
   const [error, setError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
@@ -81,7 +83,9 @@ export default function Overview() {
           transition={{ duration: 0.3 }}
         >
           {/* ── 1. Hero ─────────────────────────────────── */}
-          <OverviewHero />
+          <OverviewHero
+            totalTransactions={kpis?.totalTransactions?.raw ?? null}
+          />
 
           <KPIRow />
 
@@ -144,7 +148,8 @@ export default function Overview() {
             </span>
             <div className="flex items-center gap-4">
               <span className="text-[10px] text-[#1E293B]">
-                24,847 txns processed today
+                {kpis?.totalTransactions?.raw?.toLocaleString() ?? "—"} txns
+                processed today
               </span>
               <span className="flex items-center gap-1.5 text-[10px] text-[#22C55E]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />

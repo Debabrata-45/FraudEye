@@ -1,14 +1,5 @@
 /**
  * Topbar.jsx — FraudEye Sticky Operational Topbar
- *
- * Features:
- *  - Frosted glass with subtle bottom border
- *  - Page title + sub breadcrumb
- *  - Live clock (HH:MM:SS UTC)
- *  - System status dot
- *  - Notification bell (badge)
- *  - User profile chip
- *  - Hamburger for mobile
  */
 
 import { useState, useEffect } from "react";
@@ -24,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../feedback";
 import { SystemStatusDot, LiveBadge } from "../polish";
 
 /* ── Live clock ──────────────────────────────────────────── */
@@ -31,10 +23,7 @@ function LiveClock() {
   const [time, setTime] = useState("");
 
   useEffect(() => {
-    const tick = () => {
-      const now = new Date();
-      setTime(now.toUTCString().slice(17, 25) + " UTC");
-    };
+    const tick = () => setTime(new Date().toUTCString().slice(17, 25) + " UTC");
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
@@ -55,9 +44,19 @@ function LiveClock() {
 /* ── Profile dropdown ────────────────────────────────────── */
 function ProfileChip({ user, onLogout }) {
   const [open, setOpen] = useState(false);
+  const { showToast } = useToast();
 
   const initials = user?.email ? user.email.slice(0, 2).toUpperCase() : "FE";
   const role = user?.role === "admin" ? "Admin" : "Analyst";
+
+  const handleProfile = () => {
+    setOpen(false);
+    showToast({
+      type: "info",
+      message: "Profile settings — coming soon",
+      duration: 2500,
+    });
+  };
 
   return (
     <div className="relative">
@@ -72,7 +71,6 @@ function ProfileChip({ user, onLogout }) {
         aria-haspopup="true"
         aria-expanded={open}
       >
-        {/* Avatar */}
         <span
           className="w-6 h-6 rounded-md bg-[#22D3EE18] border border-[#22D3EE33]
                           flex items-center justify-center text-[10px] font-bold text-[#22D3EE]"
@@ -90,7 +88,6 @@ function ProfileChip({ user, onLogout }) {
         </div>
       </button>
 
-      {/* Dropdown */}
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
@@ -102,7 +99,7 @@ function ProfileChip({ user, onLogout }) {
             className="absolute right-0 top-full mt-2 z-50 w-52
                        fe-glass border border-[#1E293B] rounded-xl shadow-2xl overflow-hidden"
           >
-            {/* User info header */}
+            {/* User info */}
             <div className="px-4 py-3 border-b border-[#1E293B]">
               <p className="text-xs font-semibold text-[#F8FAFC]">
                 {user?.email ?? "—"}
@@ -113,11 +110,11 @@ function ProfileChip({ user, onLogout }) {
               </p>
             </div>
 
-            {/* Profile option */}
+            {/* Profile */}
             <button
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#94A3B8]
                          hover:text-[#F8FAFC] hover:bg-[#FFFFFF06] transition-colors"
-              onClick={() => setOpen(false)}
+              onClick={handleProfile}
             >
               <User size={14} />
               Profile
@@ -142,7 +139,7 @@ function ProfileChip({ user, onLogout }) {
   );
 }
 
-/* ── Topbar ───────────────────────────────────────────────── */
+/* ── Topbar ──────────────────────────────────────────────── */
 export default function Topbar({
   title,
   sub,
@@ -153,7 +150,6 @@ export default function Topbar({
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
 
-  /* Track scroll for shadow */
   useEffect(() => {
     const el = document.getElementById("fe-main");
     if (!el) return;
@@ -174,9 +170,8 @@ export default function Topbar({
         scrolled && "shadow-[0_1px_0_0_#22D3EE0A,0_4px_24px_0_#00000040]",
       )}
     >
-      {/* ── Left: hamburger + breadcrumb ─────────────────── */}
+      {/* Left: hamburger + breadcrumb */}
       <div className="flex items-center gap-3 min-w-0">
-        {/* Hamburger — mobile always, desktop when collapsed */}
         {(isMobile || collapsed) && (
           <button
             onClick={onMenuClick}
@@ -188,7 +183,6 @@ export default function Topbar({
           </button>
         )}
 
-        {/* Page title */}
         <motion.div
           key={title}
           initial={{ opacity: 0, x: -6 }}
@@ -196,7 +190,6 @@ export default function Topbar({
           transition={{ duration: 0.2 }}
           className="flex items-center gap-2 min-w-0"
         >
-          {/* Breadcrumb divider — shown on desktop */}
           {!isMobile && !collapsed && (
             <ChevronRight size={14} className="text-[#1E293B] flex-shrink-0" />
           )}
@@ -213,16 +206,14 @@ export default function Topbar({
         </motion.div>
       </div>
 
-      {/* ── Right: status + clock + bell + profile ─────────── */}
+      {/* Right: status + clock + bell + profile */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        {/* System status dots */}
         <SystemStatusDot status="ok" label="ML Service" />
         <SystemStatusDot status="ok" label="Database" />
         <LiveBadge variant="active" />
 
         <LiveClock />
 
-        {/* Notification bell */}
         <button
           className="relative p-1.5 rounded-lg text-[#475569] hover:text-[#94A3B8]
                      hover:bg-[#FFFFFF06] border border-transparent hover:border-[#1E293B]
@@ -230,17 +221,14 @@ export default function Topbar({
           aria-label="Notifications"
         >
           <Bell size={16} strokeWidth={1.5} />
-          {/* Unread dot */}
           <span
             className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#F43F5E]
                             shadow-[0_0_4px_#F43F5E]"
           />
         </button>
 
-        {/* Divider */}
         <div className="w-px h-5 bg-[#1E293B] mx-0.5" />
 
-        {/* Profile */}
         <ProfileChip user={user} onLogout={logout} />
       </div>
     </header>

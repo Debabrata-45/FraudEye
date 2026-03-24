@@ -1,15 +1,64 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ScrollText, Hash, User, Clock, ArrowRight } from "lucide-react";
-import {
-  EVENT_TYPES,
-  ACTOR_CONFIG,
-  RESULT_CONFIG,
-  formatExactTime,
-} from "./auditData";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { MetaRow } from "../../components/Responsive";
 
-// ─── Section ──────────────────────────────────────────────────────────────────
+/* ── Category config (derived from useAuditData normalizeLog) ── */
+const CATEGORY_CONFIG = {
+  Decision: {
+    bg: "bg-[#22D3EE0A]",
+    border: "border-[#22D3EE25]",
+    color: "text-[#22D3EE]",
+    icon: "⚖️",
+  },
+  Alert: {
+    bg: "bg-[#F43F5E0A]",
+    border: "border-[#F43F5E25]",
+    color: "text-[#F43F5E]",
+    icon: "🚨",
+  },
+  Config: {
+    bg: "bg-[#8B5CF60A]",
+    border: "border-[#8B5CF625]",
+    color: "text-[#8B5CF6]",
+    icon: "⚙️",
+  },
+  Auth: {
+    bg: "bg-[#F59E0B0A]",
+    border: "border-[#F59E0B25]",
+    color: "text-[#F59E0B]",
+    icon: "🔐",
+  },
+  Model: {
+    bg: "bg-[#22C55E0A]",
+    border: "border-[#22C55E25]",
+    color: "text-[#22C55E]",
+    icon: "🤖",
+  },
+  System: {
+    bg: "bg-[#47556910]",
+    border: "border-[#33415530]",
+    color: "text-[#64748B]",
+    icon: "🖥️",
+  },
+};
+
+const RESULT_CONFIG = {
+  SUCCESS: {
+    bg: "bg-[#22C55E0A]",
+    border: "border-[#22C55E25]",
+    text: "text-[#22C55E]",
+    label: "Success",
+  },
+  FAILURE: {
+    bg: "bg-[#F43F5E0A]",
+    border: "border-[#F43F5E25]",
+    text: "text-[#F43F5E]",
+    label: "Failed",
+  },
+};
+
+/* ── Section wrapper ─────────────────────────────────────── */
 const Section = ({ title, icon: _Icon, children }) => (
   <div className="mb-5">
     <div className="flex items-center gap-2 mb-2.5">
@@ -22,7 +71,7 @@ const Section = ({ title, icon: _Icon, children }) => (
   </div>
 );
 
-// ─── Empty ────────────────────────────────────────────────────────────────────
+/* ── Empty state ─────────────────────────────────────────── */
 const DrawerEmpty = () => (
   <div className="flex flex-col items-center justify-center h-full py-16 gap-4">
     <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/40 flex items-center justify-center">
@@ -37,17 +86,17 @@ const DrawerEmpty = () => (
   </div>
 );
 
-// ─── Main drawer ──────────────────────────────────────────────────────────────
+/* ── Main drawer ─────────────────────────────────────────── */
 const AuditDrawer = ({ log, onClose }) => {
-  const evtCfg = log
-    ? EVENT_TYPES[log.eventType] || EVENT_TYPES.MODEL_SCORED
-    : null;
-  const actorCfg = log
-    ? ACTOR_CONFIG[log.actor.role] || ACTOR_CONFIG.system
+  const catCfg = log
+    ? (CATEGORY_CONFIG[log.category] ?? CATEGORY_CONFIG.System)
     : null;
   const resultCfg = log
-    ? RESULT_CONFIG[log.result] || RESULT_CONFIG.INFO
+    ? (RESULT_CONFIG[log.result] ?? RESULT_CONFIG.SUCCESS)
     : null;
+  const ts = log ? new Date(log.ts) : null;
+  const timeAgo = ts ? formatDistanceToNow(ts, { addSuffix: true }) : "—";
+  const timeExact = ts ? format(ts, "MMM dd, yyyy HH:mm:ss") : "—";
 
   return (
     <motion.div
@@ -97,16 +146,22 @@ const AuditDrawer = ({ log, onClose }) => {
             >
               {/* Event headline */}
               <div
-                className={`p-4 rounded-xl border mb-5 ${evtCfg.bg} ${evtCfg.border}`}
+                className={`p-4 rounded-xl border mb-5 ${catCfg.bg} ${catCfg.border}`}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl flex-shrink-0">{evtCfg.icon}</span>
+                  <span className="text-2xl flex-shrink-0">{catCfg.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-bold mb-1 ${evtCfg.color}`}>
-                      {evtCfg.label}
+                    <p className={`text-sm font-bold mb-1 ${catCfg.color}`}>
+                      {log.actionType?.replace(/_/g, " ").toUpperCase() ??
+                        "UNKNOWN EVENT"}
                     </p>
                     <p className="text-xs text-slate-300 leading-relaxed">
-                      {log.detail}
+                      {log.meta
+                        ? Object.entries(log.meta)
+                            .slice(0, 3)
+                            .map(([k, v]) => `${k}: ${v}`)
+                            .join(" · ")
+                        : "No additional details"}
                     </p>
                   </div>
                 </div>
@@ -120,49 +175,74 @@ const AuditDrawer = ({ log, onClose }) => {
                     {log.id}
                   </span>
                   <span
-                    className={`text-[11px] px-2 py-0.5 rounded-md border ${actorCfg.bg} ${actorCfg.border} ${actorCfg.color}`}
+                    className={`text-[11px] px-2 py-0.5 rounded-md border ${catCfg.bg} ${catCfg.border} ${catCfg.color}`}
                   >
-                    {evtCfg.category}
+                    {log.category}
                   </span>
                 </div>
               </div>
 
-              {/* Who & when — MetaRow from responsive */}
+              {/* Who & when */}
               <Section title="Who & When" icon={User}>
                 <div className="bg-slate-800/30 rounded-lg px-3 py-1 border border-slate-700/30">
-                  <MetaRow label="Actor" value={log.actor.name} />
-                  <MetaRow label="Role" value={log.actor.role} />
-                  <MetaRow
-                    label="Exact Time"
-                    value={formatExactTime(log.timestamp)}
-                    mono
-                  />
+                  <MetaRow label="Actor" value={log.actorEmail ?? "system"} />
+                  <MetaRow label="Role" value={log.actorRole ?? "system"} />
+                  <MetaRow label="Exact Time" value={timeExact} mono />
                   <MetaRow
                     label="Relative"
                     value={
                       <span className="flex items-center gap-1">
                         <Clock size={9} />
-                        {formatDistanceToNow(log.timestamp, {
-                          addSuffix: true,
-                        })}
+                        {timeAgo}
                       </span>
                     }
                   />
-                  <MetaRow label="IP Address" value={log.ipAddress} mono />
-                  <MetaRow label="Session ID" value={log.sessionId} mono />
                 </div>
               </Section>
 
-              {/* Affected entities */}
-              <Section title="Affected Entities" icon={Hash}>
-                <div className="bg-slate-800/30 rounded-lg px-3 py-1 border border-slate-700/30">
-                  <MetaRow label="Transaction" value={log.entityId} mono />
-                  <MetaRow label="Case ID" value={log.caseId} mono />
-                </div>
-              </Section>
+              {/* Affected entity */}
+              {(log.entityId || log.entityType) && (
+                <Section title="Affected Entity" icon={Hash}>
+                  <div className="bg-slate-800/30 rounded-lg px-3 py-1 border border-slate-700/30">
+                    {log.entityType && (
+                      <MetaRow label="Type" value={log.entityType} />
+                    )}
+                    {log.entityId && (
+                      <MetaRow
+                        label="Entity ID"
+                        value={String(log.entityId)}
+                        mono
+                      />
+                    )}
+                  </div>
+                </Section>
+              )}
+
+              {/* Meta details */}
+              {log.meta && Object.keys(log.meta).length > 0 && (
+                <Section title="Event Details" icon={ScrollText}>
+                  <div className="bg-slate-800/30 rounded-lg px-3 py-1 border border-slate-700/30">
+                    {Object.entries(log.meta).map(([k, v]) => (
+                      <MetaRow
+                        key={k}
+                        label={k.replace(/_/g, " ")}
+                        value={
+                          typeof v === "object"
+                            ? JSON.stringify(v)
+                            : String(v ?? "—")
+                        }
+                        mono={
+                          typeof v === "number" ||
+                          k.toLowerCase().includes("id")
+                        }
+                      />
+                    ))}
+                  </div>
+                </Section>
+              )}
 
               {/* Before / after */}
-              {log.beforeAfter && (
+              {(log.before || log.after) && (
                 <Section title="State Change" icon={ArrowRight}>
                   <div className="flex gap-2">
                     <div className="flex-1 p-3 rounded-xl bg-rose-500/8 border border-rose-500/15">
@@ -170,7 +250,7 @@ const AuditDrawer = ({ log, onClose }) => {
                         Before
                       </p>
                       <p className="text-xs text-slate-300 font-mono">
-                        {log.beforeAfter.before}
+                        {log.before ? JSON.stringify(log.before) : "—"}
                       </p>
                     </div>
                     <div className="flex items-center text-slate-600 flex-shrink-0">
@@ -181,7 +261,7 @@ const AuditDrawer = ({ log, onClose }) => {
                         After
                       </p>
                       <p className="text-xs text-slate-300 font-mono">
-                        {log.beforeAfter.after}
+                        {log.after ? JSON.stringify(log.after) : "—"}
                       </p>
                     </div>
                   </div>

@@ -15,6 +15,7 @@ const feedbackRoutes = require("./modules/feedback/feedback.routes");
 const actionsRoutes = require("./modules/actions/actions.routes");
 const alertsRoutes = require("./modules/alerts/alerts.routes");
 const explanationsRoutes = require("./modules/explanations/explanations.routes");
+const auditRoutes = require("./modules/audit/audit.routes");
 
 const app = express();
 
@@ -65,7 +66,7 @@ app.get("/health", async (req, res) => {
   }
   res.status(health.ok ? 200 : 503).json(health);
 });
-
+app.use("/api/audit-logs", auditRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", txRoutes);
 app.use("/api/stream", streamRoutes);

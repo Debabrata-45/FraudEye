@@ -111,7 +111,7 @@ const RelatedTransaction = ({ xcase }) => {
               className={`px-2 py-0.5 rounded-md border text-[11px] font-semibold
               ${statusCfg.bg} ${statusCfg.border} ${statusCfg.text}`}
             >
-              {xcase.status.replace("_", " ")}
+              {(xcase.status ?? xcase.label ?? "UNKNOWN").replace("_", " ")}
             </span>
           }
         />
@@ -121,11 +121,11 @@ const RelatedTransaction = ({ xcase }) => {
       <div className="flex gap-2 flex-wrap">
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/40 border border-slate-700/30 text-xs text-slate-400">
           <MapPin size={11} className="text-slate-500" />
-          {xcase.geo}
+          {xcase.geo ?? "—"}
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/40 border border-slate-700/30 text-xs text-slate-400">
           <Smartphone size={11} className="text-slate-500" />
-          {xcase.device}
+          {xcase.device ?? "Unknown"}
         </div>
       </div>
     </motion.div>

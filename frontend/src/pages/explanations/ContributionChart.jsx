@@ -14,7 +14,14 @@ const ContributionBar = ({
   maxVal,
 }) => {
   const [hovered, setHovered] = useState(false);
-  const cfg = CONTRIBUTION[contribution] || CONTRIBUTION.SAFE;
+  const cfg = CONTRIBUTION[contribution] ??
+    CONTRIBUTION["positive"] ??
+    CONTRIBUTION["negative"] ?? {
+      color: "#22C55E",
+      bg: "bg-emerald-500/20",
+      text: "text-emerald-400",
+      label: "Safe",
+    };
   const pct = Math.round((absValue / maxVal) * 100);
   const isFraud = contribution === "FRAUD";
 
@@ -73,11 +80,7 @@ const ContributionBar = ({
                 delay: 0.1 + index * 0.04,
                 ease: "easeOut",
               }}
-              style={
-                isFraud
-                  ? { boxShadow: `0 0 8px ${CONTRIBUTION.FRAUD.color}50` }
-                  : undefined
-              }
+              style={isFraud ? { boxShadow: `0 0 8px #F43F5E50` } : undefined}
             />
           </div>
         </div>
@@ -131,12 +134,23 @@ const Legend = () => (
 const ContributionChart = ({ xcase }) => {
   const [method, setMethod] = useState("SHAP");
 
-  const features = method === "SHAP" ? xcase.shapFeatures : xcase.limeFeatures;
-  const topFeatures = features.slice(0, 8);
-  const maxVal = Math.max(...topFeatures.map((f) => f.absValue));
-
-  const fraudDrivers = topFeatures.filter((f) => f.contribution === "FRAUD");
-  const safeDrivers = topFeatures.filter((f) => f.contribution === "SAFE");
+  const features =
+    method === "SHAP"
+      ? (xcase.shapFeatures ?? xcase.features ?? [])
+      : (xcase.limeFeatures ?? []);
+  const topFeatures = (features ?? []).slice(0, 8);
+  const maxVal =
+    topFeatures.length > 0
+      ? Math.max(
+          ...topFeatures.map((f) => Math.abs(f.absValue ?? f.value ?? 0)),
+        )
+      : 1;
+  const fraudDrivers = topFeatures.filter(
+    (f) => (f.absValue ?? f.value ?? 0) > 0,
+  );
+  const safeDrivers = topFeatures.filter(
+    (f) => (f.absValue ?? f.value ?? 0) < 0,
+  );
 
   return (
     <motion.div

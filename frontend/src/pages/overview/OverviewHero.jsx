@@ -1,8 +1,6 @@
 /**
  * OverviewHero.jsx — Overview page hero / header section
- * Strong first impression: title, tagline, system status, live clock
  */
-
 import { motion } from "framer-motion";
 import { ShieldAlert, Cpu, Database, Zap } from "lucide-react";
 import { LiveDot } from "../../motion";
@@ -10,7 +8,6 @@ import { fadeUp, staggerNormal } from "../../motion";
 import { cn } from "../../utils/cn";
 import { HeroLine } from "../../components/polish";
 
-/* ── System health pill ──────────────────────────────────── */
 function StatusPill({ icon: _Icon, label, status = "ok" }) {
   const styles = {
     ok: "text-[#22C55E] bg-[#22C55E0A] border-[#22C55E20]",
@@ -30,7 +27,12 @@ function StatusPill({ icon: _Icon, label, status = "ok" }) {
   );
 }
 
-export default function OverviewHero() {
+export default function OverviewHero({ totalTransactions }) {
+  // Use real count if provided, otherwise show loading placeholder
+  const txnDisplay = totalTransactions
+    ? totalTransactions.toLocaleString()
+    : "—";
+
   return (
     <motion.div
       variants={staggerNormal}
@@ -38,12 +40,11 @@ export default function OverviewHero() {
       animate="visible"
       className="mb-8"
     >
-      {/* ── Top row: tagline badge + system status ──────── */}
+      {/* Top row: tagline badge + system status */}
       <motion.div
         variants={fadeUp}
         className="flex items-center justify-between gap-4 mb-5 flex-wrap"
       >
-        {/* Tagline badge */}
         <div className="flex items-center gap-2">
           <span
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg
@@ -57,7 +58,6 @@ export default function OverviewHero() {
           <span className="text-[11px] text-[#22C55E] font-medium">Live</span>
         </div>
 
-        {/* System status pills */}
         <div className="flex items-center gap-2 flex-wrap">
           <StatusPill icon={Cpu} label="ML Service" status="ok" />
           <StatusPill icon={Database} label="PostgreSQL" status="ok" />
@@ -65,7 +65,7 @@ export default function OverviewHero() {
         </div>
       </motion.div>
 
-      {/* ── Main headline ───────────────────────────────── */}
+      {/* Main headline */}
       <motion.div variants={fadeUp} className="mb-3">
         <h1 className="text-3xl font-bold tracking-tight text-[#F8FAFC] leading-none mb-2">
           Fraud Intelligence{" "}
@@ -76,12 +76,11 @@ export default function OverviewHero() {
         <p className="text-sm text-[#475569] max-w-xl leading-relaxed">
           Real-time detection across all transaction streams. XGBoost model
           active with SHAP explainability. Monitoring{" "}
-          <span className="text-[#22D3EE] font-medium">24,847</span>{" "}
+          <span className="text-[#22D3EE] font-medium">{txnDisplay}</span>{" "}
           transactions today.
         </p>
       </motion.div>
 
-      {/* ── Ambient scan line ───────────────────────────── */}
       <HeroLine color="cyan" delay={0.3} />
     </motion.div>
   );

@@ -1,8 +1,6 @@
-/**
- * useSSE.js — Real SSE connection to /api/stream/transactions
- */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { API_BASE_URL } from "../utils/constants";
+import apiClient from "../api/client";
 
 export function useSSE(maxEvents = 100) {
   const [events, setEvents] = useState([]);
@@ -21,12 +19,50 @@ export function useSSE(maxEvents = 100) {
   const bufferRef = useRef([]);
   const maxEventsRef = useRef(maxEvents);
   const reconnectRef = useRef(null);
-  const connectRef = useRef(null); // holds latest connect fn to avoid stale closure
+  const connectRef = useRef(null);
+  const initialLoaded = useRef(false);
 
   useEffect(() => {
     maxEventsRef.current = maxEvents;
   }, [maxEvents]);
 
+  /* ── Load recent transactions on mount ──────────────────── */
+  useEffect(() => {
+    if (initialLoaded.current) return;
+    initialLoaded.current = true;
+
+    async function loadRecent() {
+      try {
+        const res = await apiClient.get("/api/transactions", {
+          params: { limit: 50 },
+        });
+        const items = res.data?.data?.items ?? [];
+
+        // Only show medium+ risk in the live feed
+        const relevant = items
+          .filter((t) => t.risk_score != null && t.risk_score > 30)
+          .map((t) => mapAPITransaction(t))
+          .slice(0, 40);
+
+        if (relevant.length > 0) {
+          setEvents(relevant);
+          // Compute initial stats
+          setStats({
+            critical: relevant.filter((e) => e.severity === "critical").length,
+            high: relevant.filter((e) => e.severity === "high").length,
+            medium: relevant.filter((e) => e.severity === "medium").length,
+            total: relevant.length,
+          });
+        }
+      } catch (err) {
+        console.warn("[useSSE] Failed to load initial events:", err.message);
+      }
+    }
+
+    loadRecent();
+  }, []);
+
+  /* ── SSE connection ──────────────────────────────────────── */
   const connectSSE = useCallback(() => {
     const token = localStorage.getItem("fraudeye_token");
     if (!token) return;
@@ -90,7 +126,6 @@ export function useSSE(maxEvents = 100) {
       setConnected(false);
       es.close();
       esRef.current = null;
-      // Use ref to call reconnect — avoids self-reference in useCallback
       reconnectRef.current = setTimeout(() => {
         reconnectRef.current = null;
         if (connectRef.current) connectRef.current();
@@ -98,7 +133,6 @@ export function useSSE(maxEvents = 100) {
     };
   }, []);
 
-  // Keep connectRef pointing to latest connectSSE
   useEffect(() => {
     connectRef.current = connectSSE;
   }, [connectSSE]);
@@ -129,6 +163,35 @@ export function useSSE(maxEvents = 100) {
   return { events, connected, paused, togglePause, stats, newIds };
 }
 
+/* ── Map API transaction → feed event shape ─────────────── */
+function mapAPITransaction(t) {
+  const score = parseInt(t.risk_score ?? 0);
+  const label = (t.risk_label ?? "low").toLowerCase();
+  const severity = mapSeverity(label);
+
+  return {
+    id: `TXN-${String(t.id).padStart(6, "0")}`,
+    ts: t.occurred_at ?? t.created_at ?? new Date().toISOString(),
+    title: buildTitleFromLabel(label, score),
+    severity,
+    risk: score / 100,
+    merchant: String(t.merchant_id ?? "Unknown"),
+    amount: parseFloat(t.amount ?? 0),
+    currency: t.currency ?? "INR",
+    card: "0000",
+    device: "Unknown",
+    userId: String(t.user_id ?? ""),
+    reasons: [],
+    riskScore: score,
+    riskLabel: label,
+    topFactors: [],
+    shap: null,
+    lime: null,
+    isHistorical: true,
+  };
+}
+
+/* ── Map SSE event → feed event shape ───────────────────── */
 function mapSSEEvent(data) {
   return {
     id: `TXN-${data.transactionId}`,
@@ -138,6 +201,7 @@ function mapSSEEvent(data) {
     risk: (data.riskScore ?? 0) / 100,
     merchant: String(data.merchantId ?? "Unknown"),
     amount: parseFloat(data.amount ?? 0),
+    currency: data.currency ?? "INR",
     card: "0000",
     device: "Unknown",
     userId: String(data.userId ?? ""),
@@ -147,6 +211,7 @@ function mapSSEEvent(data) {
     topFactors: data.topFactors ?? [],
     shap: data.shap ?? null,
     lime: data.lime ?? null,
+    isHistorical: false,
   };
 }
 
@@ -166,5 +231,12 @@ function buildTitle(data) {
   if (label === "CRITICAL") return `Critical fraud detected — score ${score}`;
   if (label === "HIGH") return `High risk transaction — score ${score}`;
   if (label === "MEDIUM") return `Suspicious activity — score ${score}`;
+  return `Transaction scored — score ${score}`;
+}
+
+function buildTitleFromLabel(label, score) {
+  if (label === "critical") return `Critical fraud detected — score ${score}`;
+  if (label === "high") return `High risk transaction — score ${score}`;
+  if (label === "medium") return `Suspicious activity — score ${score}`;
   return `Transaction scored — score ${score}`;
 }

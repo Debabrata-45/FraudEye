@@ -1,89 +1,124 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { formatDistanceToNow } from 'date-fns';
-import { Eye, ScrollText } from 'lucide-react';
-import { EVENT_TYPES, ACTOR_CONFIG, RESULT_CONFIG, formatExactTime } from './auditData';
+import { motion, AnimatePresence } from "framer-motion";
+import { formatDistanceToNow } from "date-fns";
+import { Eye, ScrollText } from "lucide-react";
+import {
+  EVENT_TYPES,
+  ACTOR_CONFIG,
+  RESULT_CONFIG,
+  formatExactTime,
+} from "./auditData";
 
-// ─── Event type badge ─────────────────────────────────────────────────────────
+/* ── Safe time helper ────────────────────────────────────── */
+function safeTimeAgo(ts) {
+  try {
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return "—";
+    return formatDistanceToNow(d, { addSuffix: true });
+  } catch {
+    return "—";
+  }
+}
+
+/* ── Event badge ─────────────────────────────────────────── */
 const EventBadge = ({ eventType }) => {
-  const cfg = EVENT_TYPES[eventType] || EVENT_TYPES.MODEL_SCORED;
+  const cfg = EVENT_TYPES[eventType] ?? Object.values(EVENT_TYPES)[0];
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[11px] font-semibold
-      ${cfg.bg} ${cfg.border} ${cfg.color}`}
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[11px] font-semibold
+        bg-[${cfg.color}14] border-[${cfg.color}33] text-[${cfg.color}]`}
+      style={{
+        color: cfg.color,
+        background: `${cfg.color}14`,
+        borderColor: `${cfg.color}33`,
+      }}
     >
-      <span className="text-xs leading-none">{cfg.icon}</span>
       {cfg.label}
     </span>
   );
 };
 
-// ─── Actor badge ──────────────────────────────────────────────────────────────
+/* ── Actor badge ─────────────────────────────────────────── */
 const ActorBadge = ({ actor }) => {
-  const cfg = ACTOR_CONFIG[actor.role] || ACTOR_CONFIG.system;
-  const display = actor.role === 'system' ? 'System' : actor.name.split('@')[0];
+  if (!actor) return <span className="text-[11px] text-slate-500">—</span>;
+  const cfg = ACTOR_CONFIG[actor.role] ?? ACTOR_CONFIG.system;
+  const display =
+    actor.role === "system"
+      ? "System"
+      : (actor.name ?? "").split("@")[0] || "Unknown";
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11px] font-medium
-      ${cfg.bg} ${cfg.border} ${cfg.color}`}
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11px] font-medium
+        ${cfg.bg} ${cfg.border} ${cfg.color}`}
     >
       {display}
     </span>
   );
 };
 
-// ─── Result badge ─────────────────────────────────────────────────────────────
+/* ── Result badge ────────────────────────────────────────── */
 const ResultBadge = ({ result }) => {
-  const cfg = RESULT_CONFIG[result] || RESULT_CONFIG.INFO;
+  const cfg = RESULT_CONFIG[result] ?? RESULT_CONFIG.INFO;
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11px] font-medium
-      ${cfg.bg} ${cfg.border} ${cfg.text}`}
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11px] font-medium
+        ${cfg.bg} ${cfg.border} ${cfg.text}`}
     >
       {cfg.label}
     </span>
   );
 };
 
-// ─── Table row ────────────────────────────────────────────────────────────────
+/* ── Table row ───────────────────────────────────────────── */
 const AuditRow = ({ log, isSelected, onClick, isNew }) => {
-  const evtCfg    = EVENT_TYPES[log.eventType] || EVENT_TYPES.MODEL_SCORED;
-  const isDecision = evtCfg.category === 'Decision';
-  const isFailure  = log.result === 'FAILURE';
+  const evtCfg =
+    EVENT_TYPES[log.eventType] ??
+    EVENT_TYPES[log.actionType] ??
+    Object.values(EVENT_TYPES)[0];
+  const isDecision = evtCfg?.category === "Decision";
+  const isFailure = log.result === "FAILURE";
 
   return (
     <motion.tr
       layout
-      initial={isNew ? { opacity: 0, backgroundColor: 'rgba(34,211,238,0.08)' } : { opacity: 0 }}
-      animate={{ opacity: 1, backgroundColor: 'transparent' }}
+      initial={
+        isNew
+          ? { opacity: 0, backgroundColor: "rgba(34,211,238,0.08)" }
+          : { opacity: 0 }
+      }
+      animate={{ opacity: 1, backgroundColor: "transparent" }}
       transition={{ duration: isNew ? 1.2 : 0.2 }}
       onClick={() => onClick(log)}
       className={`border-b transition-all duration-150 cursor-pointer group
-        ${isSelected
-          ? 'bg-slate-800/80 border-b-slate-700'
-          : 'border-b-slate-800/60 hover:bg-slate-800/40'
-        }
-        ${isFailure && !isSelected ? 'hover:bg-rose-500/5' : ''}
+        ${isSelected ? "bg-slate-800/80 border-b-slate-700" : "border-b-slate-800/60 hover:bg-slate-800/40"}
+        ${isFailure && !isSelected ? "hover:bg-rose-500/5" : ""}
       `}
     >
       {/* Left accent edge */}
       <td className="w-0.5 p-0">
-        <div className={`w-0.5 min-h-[48px] h-full transition-all duration-150
-          ${isSelected
-            ? `opacity-100 ${isDecision ? evtCfg.dot : 'bg-cyan-500'}`
-            : isDecision
-              ? `opacity-0 group-hover:opacity-30 ${evtCfg.dot}`
-              : 'opacity-0 group-hover:opacity-20 bg-slate-500'
-          }`}
+        <div
+          className={`w-0.5 min-h-[48px] h-full transition-all duration-150
+            ${
+              isSelected
+                ? `opacity-100 ${isDecision ? "" : "bg-cyan-500"}`
+                : isDecision
+                  ? "opacity-0 group-hover:opacity-30"
+                  : "opacity-0 group-hover:opacity-20 bg-slate-500"
+            }`}
+          style={isDecision ? { backgroundColor: evtCfg?.color } : undefined}
         />
       </td>
 
-      {/* Log ID + timestamp */}
+      {/* Log ID + relative time */}
       <td className="px-3 py-3">
         <div className="flex flex-col gap-0.5">
-          <span className={`text-xs font-mono font-semibold transition-colors
-            ${isSelected ? 'text-cyan-300' : 'text-slate-300 group-hover:text-cyan-300'}`}
+          <span
+            className={`text-xs font-mono font-semibold transition-colors
+            ${isSelected ? "text-cyan-300" : "text-slate-300 group-hover:text-cyan-300"}`}
           >
-            {log.id}
+            #{log.id}
           </span>
           <span className="text-[10px] text-slate-600">
-            {formatDistanceToNow(log.timestamp, { addSuffix: true })}
+            {safeTimeAgo(log.timestamp ?? log.ts)}
           </span>
         </div>
       </td>
@@ -91,7 +126,7 @@ const AuditRow = ({ log, isSelected, onClick, isNew }) => {
       {/* Exact timestamp */}
       <td className="px-3 py-3">
         <span className="text-[11px] text-slate-500 font-mono whitespace-nowrap">
-          {formatExactTime(log.timestamp)}
+          {formatExactTime(log.timestamp ?? log.ts)}
         </span>
       </td>
 
@@ -102,14 +137,18 @@ const AuditRow = ({ log, isSelected, onClick, isNew }) => {
 
       {/* Event type */}
       <td className="px-3 py-3">
-        <EventBadge eventType={log.eventType} />
+        <EventBadge eventType={log.eventType ?? log.actionType} />
       </td>
 
       {/* Entity */}
       <td className="px-3 py-3">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[11px] font-mono text-slate-300">{log.entityId}</span>
-          <span className="text-[10px] text-slate-600">{log.caseId}</span>
+          <span className="text-[11px] font-mono text-slate-300">
+            {log.entityId ?? "—"}
+          </span>
+          <span className="text-[10px] text-slate-600">
+            {log.caseId ?? log.entityType ?? ""}
+          </span>
         </div>
       </td>
 
@@ -121,11 +160,15 @@ const AuditRow = ({ log, isSelected, onClick, isNew }) => {
       {/* Action */}
       <td className="px-3 py-3">
         <button
-          onClick={(e) => { e.stopPropagation(); onClick(log); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick(log);
+          }}
           className={`p-1.5 rounded-lg border transition-all
-            ${isSelected
-              ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400'
-              : 'bg-slate-700/30 border-slate-600/30 text-slate-500 hover:text-cyan-400 hover:border-cyan-500/25 hover:bg-cyan-500/10'
+            ${
+              isSelected
+                ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
+                : "bg-slate-700/30 border-slate-600/30 text-slate-500 hover:text-cyan-400 hover:border-cyan-500/25 hover:bg-cyan-500/10"
             }`}
         >
           <Eye size={12} />
@@ -135,19 +178,22 @@ const AuditRow = ({ log, isSelected, onClick, isNew }) => {
   );
 };
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
+/* ── Skeleton ────────────────────────────────────────────── */
 const SkeletonRow = () => (
   <tr className="border-b border-slate-800/50">
     <td className="w-0.5 p-0" />
     {[56, 80, 60, 88, 72, 52, 28].map((w, i) => (
       <td key={i} className="px-3 py-3.5">
-        <div className="h-3 rounded bg-slate-800 animate-pulse" style={{ width: w }} />
+        <div
+          className="h-3 rounded bg-slate-800 animate-pulse"
+          style={{ width: w }}
+        />
       </td>
     ))}
   </tr>
 );
 
-// ─── Empty ────────────────────────────────────────────────────────────────────
+/* ── Empty ───────────────────────────────────────────────── */
 const EmptyRows = ({ hasFilters }) => (
   <tr>
     <td colSpan={8} className="py-20 text-center">
@@ -157,10 +203,14 @@ const EmptyRows = ({ hasFilters }) => (
         </div>
         <div>
           <p className="text-sm font-medium text-slate-400">
-            {hasFilters ? 'No logs match your filters' : 'No audit logs available'}
+            {hasFilters
+              ? "No logs match your filters"
+              : "No audit logs available"}
           </p>
           <p className="text-xs text-slate-600 mt-1">
-            {hasFilters ? 'Try adjusting or resetting your filters' : 'System activity will appear here'}
+            {hasFilters
+              ? "Try adjusting or resetting your filters"
+              : "System activity will appear here"}
           </p>
         </div>
       </div>
@@ -168,8 +218,16 @@ const EmptyRows = ({ hasFilters }) => (
   </tr>
 );
 
-// ─── Main table ───────────────────────────────────────────────────────────────
-const HEADERS = ['Log ID', 'Timestamp', 'Actor', 'Event', 'Entity / Case', 'Result', ''];
+/* ── Main table ──────────────────────────────────────────── */
+const HEADERS = [
+  "Log ID",
+  "Timestamp",
+  "Actor",
+  "Event",
+  "Entity / Case",
+  "Result",
+  "",
+];
 
 const AuditTable = ({ logs, selectedId, onSelect, loading, hasFilters }) => (
   <motion.div
@@ -184,7 +242,10 @@ const AuditTable = ({ logs, selectedId, onSelect, loading, hasFilters }) => (
           <tr className="border-b border-slate-800 bg-slate-900/80">
             <th className="w-0.5 p-0" />
             {HEADERS.map((h, i) => (
-              <th key={i} className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th
+                key={i}
+                className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500"
+              >
                 {h}
               </th>
             ))}
@@ -197,7 +258,7 @@ const AuditTable = ({ logs, selectedId, onSelect, loading, hasFilters }) => (
             <EmptyRows hasFilters={hasFilters} />
           ) : (
             <AnimatePresence mode="popLayout">
-              {logs.map(log => (
+              {logs.map((log) => (
                 <AuditRow
                   key={log.id}
                   log={log}
@@ -212,10 +273,11 @@ const AuditTable = ({ logs, selectedId, onSelect, loading, hasFilters }) => (
       </table>
     </div>
 
-    {/* Footer */}
     {logs.length > 0 && !loading && (
       <div className="px-4 py-2.5 border-t border-slate-800 bg-slate-900/40 flex items-center justify-between">
-        <span className="text-xs text-slate-600">{logs.length} entries displayed</span>
+        <span className="text-xs text-slate-600">
+          {logs.length} entries displayed
+        </span>
         <span className="text-xs text-slate-600 flex items-center gap-1">
           <Eye size={10} /> Click row to expand
         </span>

@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Send, Check, X, Loader2 } from 'lucide-react';
-import { ACTIONS } from './analystData';
-import { formatTime } from './analystData';
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageSquare, Send, Check, X, Loader2 } from "lucide-react";
+import { ACTIONS } from "./analystData";
+import { formatTime } from "./analystData";
 
 // ─── Confirmation modal ───────────────────────────────────────────────────────
 const ConfirmModal = ({ action, onConfirm, onCancel, loading }) => {
@@ -16,8 +16,8 @@ const ConfirmModal = ({ action, onConfirm, onCancel, loading }) => {
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 12 }}
-        animate={{ scale: 1,   opacity: 1, y: 0  }}
-        exit={{ scale: 0.9,    opacity: 0, y: 8  }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 8 }}
         transition={{ duration: 0.18 }}
         className="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-2xl p-5 shadow-2xl shadow-black/50"
       >
@@ -32,7 +32,8 @@ const ConfirmModal = ({ action, onConfirm, onCancel, loading }) => {
         {cfg.destructive && (
           <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 mb-4">
             <p className="text-xs text-rose-300">
-              ⚠️ This action will update the case status and may trigger downstream workflows. Confirm carefully.
+              ⚠️ This action will update the case status and may trigger
+              downstream workflows. Confirm carefully.
             </p>
           </div>
         )}
@@ -52,10 +53,15 @@ const ConfirmModal = ({ action, onConfirm, onCancel, loading }) => {
             className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold
               disabled:opacity-60 transition-all ${cfg.confirmStyle}`}
           >
-            {loading
-              ? <><Loader2 size={12} className="animate-spin" /> Processing…</>
-              : <><Check size={12} /> Confirm</>
-            }
+            {loading ? (
+              <>
+                <Loader2 size={12} className="animate-spin" /> Processing…
+              </>
+            ) : (
+              <>
+                <Check size={12} /> Confirm
+              </>
+            )}
           </button>
         </div>
       </motion.div>
@@ -67,7 +73,7 @@ const ConfirmModal = ({ action, onConfirm, onCancel, loading }) => {
 const SuccessToast = ({ label }) => (
   <motion.div
     initial={{ opacity: 0, y: 8, scale: 0.95 }}
-    animate={{ opacity: 1, y: 0, scale: 1   }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
     exit={{ opacity: 0, y: -4 }}
     className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-medium"
   >
@@ -80,8 +86,12 @@ const SuccessToast = ({ label }) => (
 const NoteItem = ({ note }) => (
   <div className="px-3 py-2.5 rounded-xl bg-slate-800/40 border border-slate-700/30">
     <div className="flex items-center justify-between gap-2 mb-1">
-      <span className="text-[11px] font-semibold text-violet-300">{note.author.split('@')[0]}</span>
-      <span className="text-[10px] text-slate-600">{formatTime(note.timestamp)}</span>
+      <span className="text-[11px] font-semibold text-violet-300">
+        {note.author.split("@")[0]}
+      </span>
+      <span className="text-[10px] text-slate-600">
+        {formatTime(note.timestamp)}
+      </span>
     </div>
     <p className="text-xs text-slate-300 leading-relaxed">{note.text}</p>
   </div>
@@ -91,10 +101,10 @@ const NoteItem = ({ note }) => (
 const ActionPanel = ({ item, onAction }) => {
   const [pendingAction, setPendingAction] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [lastSuccess, setLastSuccess]     = useState(null);
-  const [note, setNote]                   = useState('');
-  const [noteSaving, setNoteSaving]       = useState(false);
-  const [noteSaved, setNoteSaved]         = useState(false);
+  const [lastSuccess, setLastSuccess] = useState(null);
+  const [note, setNote] = useState("");
+  const [noteSaving, setNoteSaving] = useState(false);
+  const [noteSaved, setNoteSaved] = useState(false);
 
   const handleActionClick = useCallback((actionKey) => {
     setLastSuccess(null);
@@ -120,20 +130,20 @@ const ActionPanel = ({ item, onAction }) => {
     setTimeout(() => {
       setNoteSaving(false);
       setNoteSaved(true);
-      setNote('');
+      setNote("");
       setTimeout(() => setNoteSaved(false), 2500);
     }, 700);
   }, [note]);
 
-  if (!item) return (
-    <div className="flex items-center justify-center h-full min-h-[200px]">
-      <p className="text-xs text-slate-600">Select a case to take action</p>
-    </div>
-  );
+  if (!item)
+    return (
+      <div className="flex items-center justify-center h-full min-h-[200px]">
+        <p className="text-xs text-slate-600">Select a case to take action</p>
+      </div>
+    );
 
   return (
     <div className="flex flex-col gap-4">
-
       {/* Success feedback */}
       <AnimatePresence>
         {lastSuccess && <SuccessToast key="toast" label={lastSuccess} />}
@@ -161,13 +171,15 @@ const ActionPanel = ({ item, onAction }) => {
       </div>
 
       {/* Previous notes */}
-      {item.notes.length > 0 && (
+      {(item.notes ?? item.feedbackNote ?? "").length > 0 && (
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500 mb-2">
             Previous Notes
           </p>
           <div className="space-y-2">
-            {item.notes.map((n, i) => <NoteItem key={i} note={n} />)}
+            {item.notes.map((n, i) => (
+              <NoteItem key={i} note={n} />
+            ))}
           </div>
         </div>
       )}
@@ -177,14 +189,18 @@ const ActionPanel = ({ item, onAction }) => {
         <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500 mb-2">
           Add Note
         </p>
-        <div className="rounded-xl border border-slate-700/60 bg-slate-800/40 overflow-hidden
+        <div
+          className="rounded-xl border border-slate-700/60 bg-slate-800/40 overflow-hidden
           focus-within:border-cyan-500/40 focus-within:ring-1 focus-within:ring-cyan-500/15 transition-all"
         >
           <div className="flex items-start gap-2 p-2.5">
-            <MessageSquare size={13} className="text-slate-500 mt-0.5 flex-shrink-0" />
+            <MessageSquare
+              size={13}
+              className="text-slate-500 mt-0.5 flex-shrink-0"
+            />
             <textarea
               value={note}
-              onChange={e => setNote(e.target.value)}
+              onChange={(e) => setNote(e.target.value)}
               placeholder="Add review notes or reasoning for this decision…"
               rows={3}
               className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-600
@@ -192,7 +208,9 @@ const ActionPanel = ({ item, onAction }) => {
             />
           </div>
           <div className="flex items-center justify-between px-3 py-2 border-t border-slate-700/40">
-            <span className="text-[10px] text-slate-600">{note.length}/500</span>
+            <span className="text-[10px] text-slate-600">
+              {note.length}/500
+            </span>
             <div className="flex items-center gap-2">
               <AnimatePresence>
                 {noteSaved && (
@@ -208,7 +226,7 @@ const ActionPanel = ({ item, onAction }) => {
               </AnimatePresence>
               {note.trim() && (
                 <button
-                  onClick={() => setNote('')}
+                  onClick={() => setNote("")}
                   className="p-1 rounded text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   <X size={11} />
@@ -221,10 +239,11 @@ const ActionPanel = ({ item, onAction }) => {
                   text-cyan-300 text-xs font-semibold hover:bg-cyan-500/20 disabled:opacity-40
                   disabled:cursor-not-allowed transition-all"
               >
-                {noteSaving
-                  ? <Loader2 size={11} className="animate-spin" />
-                  : <Send size={11} />
-                }
+                {noteSaving ? (
+                  <Loader2 size={11} className="animate-spin" />
+                ) : (
+                  <Send size={11} />
+                )}
                 Save
               </button>
             </div>
@@ -244,7 +263,6 @@ const ActionPanel = ({ item, onAction }) => {
           />
         )}
       </AnimatePresence>
-
     </div>
   );
 };

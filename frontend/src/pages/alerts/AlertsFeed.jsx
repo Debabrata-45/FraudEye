@@ -24,7 +24,14 @@ const SeverityBadge = ({ severity }) => {
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
-  const cfg = ALERT_STATUS[status] || ALERT_STATUS.DISMISSED;
+  const cfg = ALERT_STATUS[status] ??
+    ALERT_STATUS[status?.toLowerCase()] ??
+    ALERT_STATUS.active ?? {
+      label: "Active",
+      bg: "bg-[#22D3EE0C]",
+      border: "border-[#22D3EE28]",
+      text: "text-[#22D3EE]",
+    };
   return (
     <span
       className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11px] font-medium ${cfg.bg} ${cfg.border} ${cfg.text}`}
@@ -173,10 +180,10 @@ const AlertItem = ({ alert, isSelected, onClick, isNew }) => {
         <div className="mt-2.5 pt-2.5 border-t border-slate-800/60 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="text-[10px] text-slate-600 uppercase tracking-wider">
-              {alert.entity.type}
+              {alert.entity?.type ?? alert.merchant ?? "—"}
             </span>
             <span className="text-[11px] font-medium text-slate-400">
-              {alert.entity.value}
+              {alert.entity?.value ?? alert.txnId ?? "—"}
             </span>
           </div>
           <div className="flex items-center gap-2">

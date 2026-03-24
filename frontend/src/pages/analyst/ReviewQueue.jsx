@@ -3,6 +3,16 @@ import { formatDistanceToNow } from "date-fns";
 import { Eye, ClipboardList } from "lucide-react";
 import { PRIORITY, REVIEW_STATUS, formatAmount } from "./analystData";
 
+function safeTimeAgo(ts) {
+  try {
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return "—";
+    return formatDistanceToNow(d, { addSuffix: true });
+  } catch {
+    return "—";
+  }
+}
+
 // ─── Priority badge ───────────────────────────────────────────────────────────
 const PriorityBadge = ({ priority }) => {
   const cfg = PRIORITY[priority] || PRIORITY.LOW;
@@ -22,7 +32,11 @@ const PriorityBadge = ({ priority }) => {
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
-  const cfg = REVIEW_STATUS[status] || REVIEW_STATUS.PENDING;
+  const cfg =
+    REVIEW_STATUS[status] ||
+    REVIEW_STATUS[status?.toUpperCase()] ||
+    REVIEW_STATUS.pending ||
+    Object.values(REVIEW_STATUS)[0];
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] font-medium
@@ -36,9 +50,14 @@ const StatusBadge = ({ status }) => {
 
 // ─── Queue item ───────────────────────────────────────────────────────────────
 const QueueItem = ({ item, isSelected, onClick }) => {
-  const priCfg = PRIORITY[item.priority] || PRIORITY.LOW;
+  const priCfg =
+    PRIORITY[item.priority] ||
+    PRIORITY[item.severity?.toUpperCase()] ||
+    PRIORITY.LOW;
   const isClosed =
     item.reviewStatus === "RESOLVED" ||
+    item.status === "confirmed" ||
+    item.status === "cleared" ||
     item.reviewStatus === "CONFIRMED" ||
     item.reviewStatus === "CLEARED";
 
@@ -103,7 +122,7 @@ const QueueItem = ({ item, isSelected, onClick }) => {
         {/* Time + assignment */}
         <div className="flex items-center justify-between mt-1.5 gap-2">
           <span className="text-[10px] text-slate-600">
-            {formatDistanceToNow(item.timestamp, { addSuffix: true })}
+            {safeTimeAgo(item.occurredAt ?? item.ts)}
           </span>
           {item.assignedTo && (
             <span className="text-[10px] text-violet-400 font-medium truncate max-w-[100px]">

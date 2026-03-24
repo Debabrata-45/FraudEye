@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain } from "lucide-react";
+import { Brain, RefreshCw, Wifi, Database } from "lucide-react";
 
 import { PageWrapper } from "../components/layout/PageShell";
 import { SplitLayout } from "../components/Responsive";
@@ -10,9 +10,10 @@ import ExplanationSummary from "./explanations/ExplanationSummary";
 import ContributionChart from "./explanations/ContributionChart";
 import FraudDrivers from "./explanations/FraudDrivers";
 import RelatedTransaction from "./explanations/RelatedTransaction";
-import { MOCK_CASES } from "./explanations/explanationsData";
+import { useCaseList, useCaseDetail } from "./explanations/useExplanationsData";
+import { cn } from "../utils/cn";
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
+/* ── Empty state ─────────────────────────────────────────── */
 const EmptyExplanation = () => (
   <motion.div
     initial={{ opacity: 0 }}
@@ -42,7 +43,7 @@ const EmptyExplanation = () => (
   </motion.div>
 );
 
-// ─── Loading state ────────────────────────────────────────────────────────────
+/* ── Loading state ───────────────────────────────────────── */
 const ExplanationLoading = () => (
   <div className="space-y-4">
     <div className="rounded-2xl border border-slate-800 p-5 space-y-3">
@@ -70,7 +71,7 @@ const ExplanationLoading = () => (
   </div>
 );
 
-// ─── Explanation workspace (right panel content) ──────────────────────────────
+/* ── Explanation workspace ───────────────────────────────── */
 const ExplanationWorkspace = ({ selectedCase, explaining }) => (
   <AnimatePresence mode="wait">
     {explaining ? (
@@ -79,7 +80,6 @@ const ExplanationWorkspace = ({ selectedCase, explaining }) => (
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
       >
         <ExplanationLoading />
       </motion.div>
@@ -89,7 +89,6 @@ const ExplanationWorkspace = ({ selectedCase, explaining }) => (
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.25 }}
       >
         <EmptyExplanation />
       </motion.div>
@@ -110,48 +109,79 @@ const ExplanationWorkspace = ({ selectedCase, explaining }) => (
   </AnimatePresence>
 );
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+/* ── Page ────────────────────────────────────────────────── */
 const Explanations = () => {
-  const [cases, setCases] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedCase, setSelectedCase] = useState(null);
-  const [explaining, setExplaining] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
+  const {
+    cases,
+    loading: listLoading,
+    mode,
+    toggleMode,
+    refresh,
+  } = useCaseList();
+  const { detail, loading: detailLoading } = useCaseDetail(selectedId);
+
+  // When detail loads from API, update selectedCase
   useEffect(() => {
-    setLoading(true);
-    const t = setTimeout(() => {
-      setCases(MOCK_CASES);
-      setLoading(false);
-    }, 700);
-    return () => clearTimeout(t);
-  }, []);
+    if (detail) setSelectedCase(detail);
+  }, [detail]);
 
   const handleSelectCase = useCallback(
     (xcase) => {
-      if (selectedCase?.id === xcase.id) return;
-      setExplaining(true);
+      if (selectedId === String(xcase.id)) return;
       setSelectedCase(null);
-      const t = setTimeout(() => {
-        setSelectedCase(xcase);
-        setExplaining(false);
-      }, 500);
-      return () => clearTimeout(t);
+      // Strip TXN- prefix if present, use transactionId
+      setSelectedId(
+        String(xcase.transactionId ?? xcase.id).replace(/^TXN-0*/i, ""),
+      );
     },
-    [selectedCase],
+    [selectedId],
   );
+
+  const explaining = !!selectedId && detailLoading;
 
   return (
     <PageWrapper>
       <div className="flex flex-col h-full min-h-0">
-        <ExplanationsHeader selectedCase={selectedCase} />
+        {/* Header + mode toggle */}
+        <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
+          <div className="flex-1 min-w-0">
+            <ExplanationsHeader selectedCase={selectedCase} />
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0 pt-1">
+            <button
+              onClick={toggleMode}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs transition-all",
+                mode === "live"
+                  ? "bg-[#8B5CF60A] border-[#8B5CF633] text-[#8B5CF6]"
+                  : "bg-slate-800/60 border-slate-700/50 text-slate-400 hover:text-slate-200",
+              )}
+            >
+              {mode === "live" ? <Wifi size={12} /> : <Database size={12} />}
+              {mode === "live" ? "Live API" : "Demo"}
+            </button>
+            <button
+              onClick={refresh}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg
+                bg-slate-800/60 border border-slate-700/50 text-xs text-slate-400
+                hover:text-slate-200 transition-all"
+            >
+              <RefreshCw size={12} />
+              Refresh
+            </button>
+          </div>
+        </div>
 
         <SplitLayout
           list={
             <CaseSelector
               cases={cases}
-              selectedId={selectedCase?.id}
+              selectedId={selectedCase?.id ?? selectedId}
               onSelect={handleSelectCase}
-              loading={loading}
+              loading={listLoading}
             />
           }
           detail={
